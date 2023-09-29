@@ -6,6 +6,8 @@
 
 The Chalmers Auralization Toolbox is a collection of MATLAB scripts that auralize sampled sound fields. The sound field quantity that is sampled can be either the sound pressure or the combination of sound pressure and particle velocity (or equivalently the sound pressure gradient). The primary purpose is auralization of data simulated with methods like FDTD, FEM, BEM, and the like.
 
+**Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/auditorium-acoustics-2023/). 
+
 The figure below illustrates the types of sampling grids that can be processed (volumetric, spherical surfaces, and cubical surfaces). 
 
 ![grids](resources/grids.png "grids")
@@ -17,8 +19,6 @@ You'll need to download the employed HRIRs from [here](https://zenodo.org/record
 The toolbox was originally presented in 
 
 > Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023
-
-Binaural audio examples that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/auditorium-acoustics-2023/). 
 
 The work is on-going, so please revisit this repository regularly for updates. Note that some of the implementations are in an experimental state. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting.
 
