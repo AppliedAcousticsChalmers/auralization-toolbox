@@ -1,12 +1,8 @@
 function [S_card, s_card] = compute_cardioid_from_pressure(grid_data, irs_outer, irs_inner, fs, c)
 
 f    = linspace(0, fs/2, size(irs_outer, 1)/2+1).';
-f(1) = 10*eps;
+f(1) = 1e-20;
 k    = 2*pi*f/c;
-
-% % convert to spherical coordinates
-% [azi, ele, r] = cart2sph(grid_data.verification_points(1, :), grid_data.verification_points(2, :), grid_data.verification_points(3, :));
-% col = pi/2 - ele;
 
 S_o = fft(irs_outer);
 S_o = S_o(1:end/2+1, :);
