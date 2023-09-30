@@ -7,15 +7,15 @@ clear;
 
 addpath('dependencies/');
 
-% load the variables fs, grid_data, grid_shape, irs, room
-%load('resources/sound_field_cubical_volume_living_room.mat');
-load('resources/sound_field_cubical_volume_big_hall.mat');
+% load the variables fs, sampling_points, grid_shape, pressure, room
+load('resources/sound_field_cubical_volume_living_room.mat');
+%load('resources/sound_field_cubical_volume_big_hall.mat');
 %load('resources/sound_field_spherical_surface_living_room.mat');
 %load('resources/sound_field_spherical_surface_big_hall.mat');
 %load('resources/sound_field_cubical_surface_living_room.mat');
 %load('resources/sound_field_cubical_surface_big_hall.mat');
 
-head_orientation_deg = 45; % azimuth in deg, counterclockwise
+head_orientation_deg = 0; % azimuth in deg, counterclockwise
 
 N    = 8; % order of the intermediate spherical harmonic representation
 taps = 1024; % good for grids of head size
@@ -41,18 +41,24 @@ assert(rem(taps, 2) == 0); % enforce even length
 if strcmp(grid_shape, 'cubical_volume')
     
     % make sure that we're getting an overdetermined equation system
-    fprintf('The minimum required number of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(grid_data.sampling_points, 2));
+    fprintf('The minimum required number of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points, 2));
 
     % the dimensions of C_nm are (no. of frequency bins x no. of sampling positions x (N+1)^2)
-    [C_nm, condition_number] = get_c_nm_volumetric(taps, grid_data, fs, N, c, dynamic_range_dB, 'real', precision);
+    [C_nm, condition_number] = get_c_nm_volumetric(taps, sampling_points, fs, N, c, dynamic_range_dB, 'real', precision);
 
 elseif strcmp(grid_shape, 'spherical_surface')
     
-    [C_nm, condition_number] = get_c_nm_surface_radial(taps, grid_data, fs, N, c, dynamic_range_dB, precision); 
+    % make sure that we're getting an overdetermined equation system
+    fprintf('The minimum required number of pairs of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points_outer, 2));
+    
+    [C_nm, condition_number] = get_c_nm_surface_radial(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision); 
 
 elseif strcmp(grid_shape, 'cubical_surface')
 
-    [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, grid_data, fs, N, c, dynamic_range_dB, precision);
+    % make sure that we're getting an overdetermined equation system
+    fprintf('The minimum required number of pairs of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points_outer, 2));
+    
+    [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision);
 
 else
     error('Unknown grid shape.');
@@ -71,12 +77,12 @@ c_nm = circshift(c_nm, size(c_nm, 1)/2, 1);
 if strcmp(grid_shape, 'spherical_surface') || strcmp(grid_shape, 'cubical_surface')
     
     % compute the signals captured by the virtual cardioid transducers
-    [~, irs] = compute_cardioid_from_pressure(grid_data, irs_outer, irs_inner, fs, c);
+    [~, pressure] = compute_cardioid_from_pressure(sampling_points_inner, sampling_points_outer, pressure_inner, pressure_outer, fs, c);
     
 end
 
 % ambisonic representation of the room data
-s_nm = get_sh_coefficients_t(irs, c_nm, N);
+s_nm = get_sh_coefficients_t(pressure, c_nm, N);
 
 % % get an example audio signal
 % [sig, fs_sig] = audioread('resources/drum_loop_48k.wav');

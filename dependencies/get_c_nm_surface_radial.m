@@ -1,4 +1,4 @@
-function [C_nm, condition_number] = get_c_nm_surface_radial(taps, grid_data, fs, N, c, dynamic_range_dB, precision)
+function [C_nm, condition_number] = get_c_nm_surface_radial(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision)
 % Evaluates the gradient in radial direction.
 %
 % All computations are performed in double precision. The result is stored
@@ -14,10 +14,10 @@ f(1) = 1e-20; % to avoid kr = 0
 k = 2*pi*f/c;
 
 % for measuring the pressure
-[azi, ele, r_pressure] = cart2sph(grid_data.sampling_points_outer(1, :).', grid_data.sampling_points_outer(2, :).', grid_data.sampling_points_outer(3, :).');
+[azi, ele, r_pressure] = cart2sph(sampling_points_outer(1, :).', sampling_points_outer(2, :).', sampling_points_outer(3, :).');
 col = pi/2 - ele;
 
-[~, ~, r_gradient] = cart2sph(grid_data.sampling_points_inner(1, :).', grid_data.sampling_points_inner(2, :).', grid_data.sampling_points_inner(3, :).'); 
+[~, ~, r_gradient] = cart2sph(sampling_points_inner(1, :).', sampling_points_inner(2, :).', sampling_points_inner(3, :).'); 
 r_gradient = (r_gradient + r_pressure)/2;
 
 % quadrature matrix (frequency x position x mode) 

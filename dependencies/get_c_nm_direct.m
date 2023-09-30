@@ -62,11 +62,7 @@ sos_lp = zp2sos(z,p,k);
 c_irs = sosfilt(sos_hp, c_irs);
 c_irs = sosfilt(sos_lp, c_irs);
 
-figure;
-plot(c_irs)
-
 C = fft(c_irs, [], 1);
 C = C(1:end/2+1, :);
-
 
 end

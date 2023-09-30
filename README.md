@@ -14,17 +14,17 @@ The figure below illustrates the types of sampling grids that can be processed (
 
 The sampled data can be converted to either an ambisonic representation, which can then be rendered both binaurally and using loudspeaker arrays. The conventions that we use (i.e. N3D and ACN) are compatible with software tools like [SPARTA](https://leomccormack.github.io/sparta-site/) and the [IEM Plugin Suite](https://plugins.iem.at/). Or, the sampled data can be rendered binaurally without an intermediate format (*direct rendering*).
 
-You'll need to download the employed HRIRs from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the SOFA MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/).
+You'll need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the SOFA MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
 
 The toolbox was originally presented in 
 
-> Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023
+> Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023 [ [pdf](https://research.chalmers.se/publication/537678/file/537678_Fulltext.pdf) ]
 
 The work is on-going, so please revisit this repository regularly for updates. Note that some of the implementations are in an experimental state. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting.
 
 ## Example Data
 
-In the folder `resources`, we provide example data for a reverberant room with a reverb decay time around 1 s ("big hall") as well as a much dryer living-room type room ("living room"). 
+In the folder `resources`, we provide example data for a reverberant room with a reverb decay time of around 1 s ("big hall") as well as a much dryer living-room type room ("living room"). You will find information on the input data format in that folder. The data are based on measurements of the responses of the two rooms. We will explain shortly how we processed the data to obtain both ground truth binaural signals as well as the sound pressure at arbitrary points in space.
 
 ## Upcoming features
 

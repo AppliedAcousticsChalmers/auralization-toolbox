@@ -1,4 +1,4 @@
-function [C_nm, condition_number] = get_c_nm_volumetric(taps, grid_data, fs, N, c, max_attenuation, sphharm_type, precision)
+function [C_nm, condition_number] = get_c_nm_volumetric(taps, sampling_points, fs, N, c, max_attenuation, sphharm_type, precision)
 % All computations are performed in double precision. The result is stored
 % in C_nm with precision 'precision'.
 % 
@@ -10,7 +10,7 @@ f(1) = 1e-20; % to avoid kr = 0
 k = 2*pi*f/c;
 
 % convert grid to spherical coordinates
-[azi, ele, r] = cart2sph(grid_data.sampling_points(1, :).', grid_data.sampling_points(2, :).', grid_data.sampling_points(3, :).');
+[azi, ele, r] = cart2sph(sampling_points(1, :).', sampling_points(2, :).', sampling_points(3, :).');
 col = pi/2 - ele;
 
 % quadrature matrix

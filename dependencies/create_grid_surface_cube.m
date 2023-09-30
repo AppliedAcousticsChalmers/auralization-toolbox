@@ -1,4 +1,4 @@
-function [grid] = create_grid_surface_cube(L, dx, delta)
+function [sampling_points_inner, sampling_points_outer] = create_grid_surface_cube(L, dx, delta)
 % L: edge length
 % dx: spacing of sampling points
 % delta: distance between layers
@@ -14,8 +14,8 @@ x2 = x1;
 y2 = y1;
 z2 = z1 + delta;
 
-grid.sampling_points_outer    = [x1(:).'; y1(:).'; z1(:).'];
-grid.sampling_points_inner    = [x2(:).'; y2(:).'; z2(:).'];
+sampling_points_outer    = [x1(:).'; y1(:).'; z1(:).'];
+sampling_points_inner    = [x2(:).'; y2(:).'; z2(:).'];
 
 % outer top layer
 x3 = x1;
@@ -27,8 +27,8 @@ x4 = x1;
 y4 = y1;
 z4 = z3 - delta;
 
-grid.sampling_points_outer    = [grid.sampling_points_outer, [x3(:).'; y3(:).'; z3(:).']];
-grid.sampling_points_inner    = [grid.sampling_points_inner, [x4(:).'; y4(:).'; z4(:).']];
+sampling_points_outer    = [sampling_points_outer, [x3(:).'; y3(:).'; z3(:).']];
+sampling_points_inner    = [sampling_points_inner, [x4(:).'; y4(:).'; z4(:).']];
 
 % outer wall 1
 [y5, z5] = meshgrid(spatial_axis, spatial_axis);
@@ -39,8 +39,8 @@ y6 = y5;
 z6 = z5;
 x6 = x5 - delta;
 
-grid.sampling_points_outer    = [grid.sampling_points_outer, [x5(:).'; y5(:).'; z5(:).']];
-grid.sampling_points_inner    = [grid.sampling_points_inner, [x6(:).'; y6(:).'; z6(:).']];
+sampling_points_outer    = [sampling_points_outer, [x5(:).'; y5(:).'; z5(:).']];
+sampling_points_inner    = [sampling_points_inner, [x6(:).'; y6(:).'; z6(:).']];
 
 % outer wall 2
 y7 = y5;
@@ -52,8 +52,8 @@ y8 = y7;
 z8 = z7;
 x8 = x7 + delta;
 
-grid.sampling_points_outer    = [grid.sampling_points_outer, [x7(:).'; y7(:).'; z7(:).']];
-grid.sampling_points_inner    = [grid.sampling_points_inner, [x8(:).'; y8(:).'; z8(:).']];
+sampling_points_outer    = [sampling_points_outer, [x7(:).'; y7(:).'; z7(:).']];
+sampling_points_inner    = [sampling_points_inner, [x8(:).'; y8(:).'; z8(:).']];
 
 % outer wall 3
 [x9, z9] = meshgrid(spatial_axis, spatial_axis);
@@ -64,8 +64,8 @@ x10 = x9;
 z10 = z9;
 y10 = y9 - delta;
 
-grid.sampling_points_outer    = [grid.sampling_points_outer, [x9(:).'; y9(:).'; z9(:).']];
-grid.sampling_points_inner    = [grid.sampling_points_inner, [x10(:).'; y10(:).'; z10(:).']];
+sampling_points_outer    = [sampling_points_outer, [x9(:).'; y9(:).'; z9(:).']];
+sampling_points_inner    = [sampling_points_inner, [x10(:).'; y10(:).'; z10(:).']];
 
 % outer wall 4
 x11 = x9;
@@ -77,8 +77,8 @@ x12 = x11;
 z12 = z11;
 y12 = y11 + delta;
 
-grid.sampling_points_outer = [grid.sampling_points_outer, [x11(:).'; y11(:).'; z11(:).']];
-grid.sampling_points_inner = [grid.sampling_points_inner, [x12(:).'; y12(:).'; z12(:).']];
+sampling_points_outer = [sampling_points_outer, [x11(:).'; y11(:).'; z11(:).']];
+sampling_points_inner = [sampling_points_inner, [x12(:).'; y12(:).'; z12(:).']];
 
 % --------------------------- add edges -----------------------------------
 
