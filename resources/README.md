@@ -4,7 +4,7 @@ The data to be auralized need to be in a format that depends on whether the data
 
 ## Volumetric data:
 
-Type `data = load('sound_field_cubical_volume_big_hall.mat')` to see the contents of the file:
+Type `data = load('sound_field_cubical_volume_big_hall.mat')` in the MATLAB command window to see the contents of the file:
 
 ```
 data = 
@@ -21,7 +21,7 @@ data =
 
 ## Surface data:
 
-Type `data = load('sound_field_spherical_surface_big_hall.mat')` to see the contents of the file:
+Type `data = load('sound_field_spherical_surface_big_hall.mat')` in the MATLAB command window to see the contents of the file:
 
 ```
 data = 
