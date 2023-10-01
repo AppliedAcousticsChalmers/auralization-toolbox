@@ -36,11 +36,21 @@ We will provide examples that demonstrate how data from the most common room aco
 
 ## References
 
+Auralization of volumetrically sampled sound fields via ambisonics:
+
 > B. Støfringsdal and U.P. Svensson, 'Conversion of Discretely Sampled Sound Field Data to Aualization Formats,' J. Audio. Eng. Soc. 54(5), pp. 380-400 (May 2006)
 
 > J. Sheaffer, M. van Walstijn, B. Rafaely, and K. Kowalczyk, 'Binaural Reproduction of Finite Difference Simulations Using Spherical Array Processing', IEEE/ACM TASLP 23(12), pp. 2125-2135 (Dec. 2015)
 
+Auralization of sound fields sampled on a spherical surface via ambisonics:
+
+> I. Balmages and B. Rafaely, 'Open-sphere designs for spherical microphone arrays,' IEEE TASLP, vol. 15, no. 2, pp. 727– 732 (2007)
+
+Direct auralization of volumetrically sampled sound fields:
+
 > M. A. Poletti and U. P. Svensson, 'Beamforming Synthesis of Binaural Responses From Computer Simulations of Acoustic Spaces,' J. Acoust. Soc. Am. 124, pp. 301–315 (2008)
+
+As to our awareness, direct auralization of sound fields sampled along surfaces via ambisonics as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before.
 
 ## License
 
