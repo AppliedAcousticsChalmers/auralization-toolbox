@@ -50,7 +50,7 @@ Direct auralization of volumetrically sampled sound fields:
 
 > M. A. Poletti and U. P. Svensson, 'Beamforming Synthesis of Binaural Responses From Computer Simulations of Acoustic Spaces,' J. Acoust. Soc. Am. 124, pp. 301–315 (2008)
 
-As to our awareness, direct auralization of sound fields sampled along surfaces via ambisonics as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before.
+As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before.
 
 ## License
 
