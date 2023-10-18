@@ -1,4 +1,7 @@
 function [out] = d_sh_mode(n, m, r, beta, alpha, k, type)
+% Derivative of j_n(kr) * Y_n,m(beta, alpha) w.r.t. the three Cartesian
+% coordinate dimensions x, y, and z
+%
 % type: 'dx', 'dy', 'dz'
 
 if (strcmp(type, 'dx'))

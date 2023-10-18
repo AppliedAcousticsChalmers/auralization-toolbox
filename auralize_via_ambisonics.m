@@ -7,13 +7,17 @@ clear;
 
 addpath('dependencies/');
 
-% load the variables fs, sampling_points, grid_shape, pressure, room
-load('resources/sound_field_cubical_volume_living_room.mat');
-%load('resources/sound_field_cubical_volume_big_hall.mat');
-%load('resources/sound_field_spherical_surface_living_room.mat');
-%load('resources/sound_field_spherical_surface_big_hall.mat');
-%load('resources/sound_field_cubical_surface_living_room.mat');
-%load('resources/sound_field_cubical_surface_big_hall.mat');
+% load the variables fs, sampling_points, grid_shape, pressure, velocity, room
+load('resources/sound_field_p_cubical_volume_living_room.mat');
+%load('resources/sound_field_p_cubical_volume_big_hall.mat');
+%load('resources/sound_field_pp_spherical_surface_living_room.mat');
+%load('resources/sound_field_pp_spherical_surface_big_hall.mat');
+%load('resources/sound_field_pp_cubical_surface_living_room.mat');
+%load('resources/sound_field_pp_cubical_surface_big_hall.mat');
+%load('resources/sound_field_pv_spherical_surface_living_room.mat');
+%load('resources/sound_field_pv_spherical_surface_big_hall.mat');
+%load('resources/sound_field_pv_cubical_surface_living_room.mat');
+%load('resources/sound_field_pv_cubical_surface_big_hall.mat');
 
 head_orientation_deg = 0; % azimuth in deg, counterclockwise
 
@@ -24,7 +28,8 @@ taps = 1024; % good for grids of head size
 % than -50 dB below the maximum.
 dynamic_range_dB = 50; % dB
 
-c         = 343; % m/s
+c         = 343; % m/s, speed of sound
+rho       = 1.2; % kg/m^3, mass density of air
 precision = 'single'; % 'single' (32-bit flating point) or 'double' (64-bit floating point)
 
 % -------------------------------------------------------------------------
@@ -41,28 +46,62 @@ assert(rem(taps, 2) == 0); % enforce even length
 if strcmp(grid_shape, 'cubical_volume')
     
     % make sure that we're getting an overdetermined equation system
-    fprintf('The minimum required number of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points, 2));
+    fprintf('The minimum required number of sampling points for the desired N is %d. %d are available.\n\n', (N+1)^2, size(sampling_points, 2));
 
     % the dimensions of C_nm are (no. of frequency bins x no. of sampling positions x (N+1)^2)
     [C_nm, condition_number] = get_c_nm_volumetric(taps, sampling_points, fs, N, c, dynamic_range_dB, 'real', precision);
 
-elseif strcmp(grid_shape, 'spherical_surface')
+else % surface sampling
     
-    % make sure that we're getting an overdetermined equation system
-    fprintf('The minimum required number of pairs of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points_outer, 2));
+    % single layer
+    if exist('velocity', 'var')
+        
+        fprintf('Using pressure and particle velocity to perform the SH decompostion.\n\n');
     
-    [C_nm, condition_number] = get_c_nm_surface_radial(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision); 
-
-elseif strcmp(grid_shape, 'cubical_surface')
-
-    % make sure that we're getting an overdetermined equation system
-    fprintf('The minimum required number of pairs of sampling points for the desired N is %d. You chose %d.\n\n', (N+1)^2, size(sampling_points_outer, 2));
+        % make sure that we're getting an overdetermined equation system
+        fprintf('The minimum required number of pairs of sampling points for the desired N is %d. %d are available.\n\n', (N+1)^2, size(sampling_points, 2));
     
-    [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision);
+        [azi_pressure, ele_pressure, r_pressure] = cart2sph(sampling_points(1, :).', sampling_points(2, :).', sampling_points(3, :).');
+        col_pressure = pi/2 - ele_pressure;
+        
+        r_velocity = r_pressure;
+        
+    % double layer
+    else 
+        
+        fprintf('Using double pressure layer to perform the SH decompostion.\n\n');
+        
+        % make sure that we're getting an overdetermined equation system
+        fprintf('The minimum required number of pairs of sampling points for the desired N is %d. %d are available.\n\n', (N+1)^2, size(sampling_points_outer, 2));
+    
+        % for measuring the pressure
+        [azi_pressure, ele_pressure, r_pressure] = cart2sph(sampling_points_outer(1, :).', sampling_points_outer(2, :).', sampling_points_outer(3, :).');
+        col_pressure = pi/2 - ele_pressure;
 
-else
-    error('Unknown grid shape.');
-end
+        % for measuring the velocity
+        [~, ~, r_velocity] = cart2sph(sampling_points_inner(1, :).', sampling_points_inner(2, :).', sampling_points_inner(3, :).'); 
+        r_velocity = (r_pressure + r_velocity)/2; % mid-point between layers
+        
+        if strcmp(grid_shape, 'cubical_surface') 
+        
+            % compute xyz compontents of the normal vector in direction of the derivative
+            normal_vector = sampling_points_outer - sampling_points_inner;
+            normal_vector = normal_vector ./ vecnorm(normal_vector);
+        
+        end
+        
+    end
+    
+    % finally, compute C_nm
+    if strcmp(grid_shape, 'spherical_surface')
+        [C_nm, condition_number] = get_c_nm_surface_radial(taps, r_pressure(1), r_velocity(1), azi_pressure, col_pressure, fs, N, c, dynamic_range_dB, precision); 
+    elseif strcmp(grid_shape, 'cubical_surface') 
+        [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, r_pressure, r_velocity, normal_vector, azi_pressure, col_pressure, fs, N, c, dynamic_range_dB, precision);
+    else
+        error('Unknown grid shape.');
+    end
+    
+end % if cubical or spherical sampling
     
 fprintf('The maximum condition number is %d.\n\n', round(max(condition_number)));
 
@@ -74,15 +113,25 @@ c_nm = circshift(c_nm, size(c_nm, 1)/2, 1);
 
 % ------------------------- SH decomposition ------------------------------
 
+% prepare the sound field data for SH decomposition
 if strcmp(grid_shape, 'spherical_surface') || strcmp(grid_shape, 'cubical_surface')
     
-    % compute the signals captured by the virtual cardioid transducers
-    [~, pressure] = compute_cardioid_from_pressure(sampling_points_inner, sampling_points_outer, pressure_inner, pressure_outer, fs, c);
+    if exist('velocity', 'var')
+        % compute the signals captured by the virtual cardioid transducers
+        sampled_sound_field = pressure - rho*c .* velocity;
+    else
+        % compute the signals captured by the virtual cardioid transducers
+        [~, sampled_sound_field] = compute_cardioid_from_pressure(sampling_points_inner, sampling_points_outer, pressure_inner, pressure_outer, fs, c);
+    end
+    
+else
+    
+    sampled_sound_field = pressure;
     
 end
 
-% ambisonic representation of the room data
-s_nm = get_sh_coefficients_t(pressure, c_nm, N);
+% ambisonic representation of the room data 
+s_nm = get_sh_coefficients_t(sampled_sound_field, c_nm, N);
 
 % % get an example audio signal
 % [sig, fs_sig] = audioread('resources/drum_loop_48k.wav');

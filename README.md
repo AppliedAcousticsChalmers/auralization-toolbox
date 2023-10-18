@@ -26,11 +26,11 @@ The work is on-going, so please revisit this repository regularly for updates. N
 
 In the folder `resources`, we provide example data for a reverberant room with a reverb decay time of around 1 s ("big hall") as well as a much dryer living-room type room ("living room"). You will find information on the input data format in that folder. The data are based on measurements of the responses of the two rooms. We will explain shortly how we processed the data to obtain both ground truth binaural signals as well as the sound pressure at arbitrary points in space.
 
-## Upcoming features
-
-Currently, all methods use sound pressure as input data Those methods that employ both sound pressure and particle velocity obtain the particle velocity from two adjacent pressure sampling points. We will allow for incorporating particle velocity direct as some simulation frameworks provide it.
+## Upcoming Features
 
 The example grids comprise approx. 300 sampling points. This produces good results, but the auralization is not perfectly transparent meaning that there are cases in which the auralization can be distinguished from the ground truth (refer to the audio examples above). Increasing the number of sampling point will eventually overcome the deviations. Yet, we are working on updates on the methods that can potentially yield perceptually transparent auralization with the present or even lower number of sampling points. 
+
+The direct rendering is rather slow currently (in the order of minutes). This is because this method requires the sound pressure due to a large number of plane waves to be computed on the sampling grid. For the time being, we chose to compute this via a spherical harmonic representation, which is computationally expensive. We will replace this in the future with a more efficient computation, which will reduce the computation time to seconds. 
 
 We will provide examples that demonstrate how data from the most common room acoustic simulation softwares can be auralized with our toolbox. 
 
@@ -50,7 +50,7 @@ Direct auralization of volumetrically sampled sound fields:
 
 > M. A. Poletti and U. P. Svensson, 'Beamforming Synthesis of Binaural Responses From Computer Simulations of Acoustic Spaces,' J. Acoust. Soc. Am. 124, pp. 301–315 (2008)
 
-As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before.
+As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before. [Here](resources/Chalmers_Auralization_Toolbox_v1.pdf), you'll find documentation on all ambisonics-based methods that the Chalmers Auralization Toolbox comprises. A detailed documentation of the direct methods will be provided shortly.
 
 ## License
 

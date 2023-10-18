@@ -1,5 +1,10 @@
-function [C_nm, condition_number] = get_c_nm_surface_radial(taps, sampling_points_inner, sampling_points_outer, fs, N, c, dynamic_range_dB, precision)
+function [C_nm, condition_number] = get_c_nm_surface_radial(taps, r_pressure, r_velocity, azi, col, fs, N, c, dynamic_range_dB, precision)
 % Evaluates the gradient in radial direction.
+% 
+% r_pressure: radius at which the pressure is observed (for double layers,
+%             this one is slightly different than r_velocity).
+%
+% r_velocity: radius at which the velocity is observed
 %
 % All computations are performed in double precision. The result is stored
 % in C_nm with precision 'precision'.
@@ -13,22 +18,15 @@ f(1) = 1e-20; % to avoid kr = 0
 
 k = 2*pi*f/c;
 
-% for measuring the pressure
-[azi, ele, r_pressure] = cart2sph(sampling_points_outer(1, :).', sampling_points_outer(2, :).', sampling_points_outer(3, :).');
-col = pi/2 - ele;
-
-[~, ~, r_gradient] = cart2sph(sampling_points_inner(1, :).', sampling_points_inner(2, :).', sampling_points_inner(3, :).'); 
-r_gradient = (r_gradient + r_pressure)/2;
-
 % quadrature matrix (frequency x position x mode) 
-C_nm = zeros(length(k), length(r_pressure), (N+1)^2, precision);
+C_nm = zeros(length(k), length(azi), (N+1)^2, precision);
 
 condition_number = zeros(length(k), 1);
 
 display_progress('Computing the quadrature matrix:');
 
 % (position x mode x bin)
-Y_nm_cardioid = zeros(length(r_pressure), (N+1)^2, length(k));
+Y_nm_cardioid = zeros(length(azi), (N+1)^2, length(k));
     
 % ----------------- assemble the matrix to be inverted --------------------
 for bin = 1 : length(k)
@@ -39,7 +37,7 @@ for bin = 1 : length(k)
     for n = 0 : N
         
         bessel       = sphbesselj(n, k(bin).*r_pressure);
-        bessel_prime = 1/(2*n+1) * (n * sphbesselj(n-1, k(bin).*r_gradient) - (n+1) * sphbesselj(n+1, k(bin).*r_gradient));
+        bessel_prime = 1/(2*n+1) * (n * sphbesselj(n-1, k(bin).*r_velocity) - (n+1) * sphbesselj(n+1, k(bin).*r_velocity));
          
         for m = -n : n
             

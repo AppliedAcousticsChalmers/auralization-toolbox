@@ -19,16 +19,8 @@ function [out_lr] = render_ambi_signals_binaurally_t(ambi_signals, head_orientat
 %
 % Written by Jens Ahrens, 2022
 
-% download HRIRs (skipped automatically if the HRIR dataset already exists)
 hrir_path = 'hrtfs/HRIR_L2702.sofa';
-
-if ~isfile(hrir_path)
-    mkdir hrtfs;
-    fprintf('Can''t find the HRTFs. '); 
-    fprintf('Downloading them from https://zenodo.org/record/3928297 ... ');
-    websave(hrir_path, 'https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1');
-    fprintf('done.\n\n');
-end
+download_hrtfs(hrir_path);
 
 SOFAstart;
 

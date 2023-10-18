@@ -1,8 +1,10 @@
-function [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, sampling_points_inner, sampling_points_outer, fs, N, c, max_attenuation, precision)
+function [C_nm, condition_number] = get_c_nm_surface_cartesian(taps, r_pressure, r_velocity, normal_vector, azi, col, fs, N, c, max_attenuation, precision)
 % Evaluates the gradient in Cartesian coordinates.
 %
 % All computations are performed in double precision. The result is stored
 % in C_nm with precision 'precision'.
+
+% TODO: differentiate between azi_pressure and azi_velocity etc.
 
 %reg_parameter = 1e-3;
 
@@ -11,36 +13,11 @@ f(1) = 1e-20; % to avoid kr = 0
 
 k = 2*pi*f/c;
 
-% convert outer sampling points to spherical coordinates
-%x = grid.sampling_points_outer(1, :).';
-%y = grid.sampling_points_outer(2, :).';
-%z = grid.sampling_points_outer(3, :).';
-
-[azi, ele, r_outer] = cart2sph(sampling_points_outer(1, :).', sampling_points_outer(2, :).', sampling_points_outer(3, :).');
-col = pi/2 - ele;
-
-% convert inner sampling points to spherical coordinates
-%[~, ~, r_inner] = cart2sph(grid.sampling_points_inner(1, :).', grid.sampling_points_inner(2, :).', grid.sampling_points_inner(3, :).');
-
-% compute midpoints between sampling points for gradient computation
-% x_mid = (grid.sampling_points_outer(1, :).' + grid.sampling_points_inner(1, :).')/2;
-% y_mid = (grid.sampling_points_outer(2, :).' + grid.sampling_points_inner(2, :).')/2;
-% z_mid = (grid.sampling_points_outer(3, :).' + grid.sampling_points_inner(3, :).')/2;
-% 
-% [azi_mid, ele_mid, r_mid] = cart2sph(x_mid, y_mid, z_mid);
-% col_mid = pi/2 - ele_mid;
-
-% compute xyz compontents of the vector in direction of the derivative
-normal_vec = sampling_points_outer - sampling_points_inner;
-normal_vec = normal_vec ./ vecnorm(normal_vec);
-
-% TODO: change azi -> azi_outer etc.
-azi_mid = azi;
-col_mid = col;
-r_mid   = r_outer;
+% assure unit length
+normal_vector = normal_vector ./ vecnorm(normal_vector);
 
 % quadrature matrix (frequency x position x mode) 
-C_nm = zeros(length(k), length(r_outer), (N+1)^2, precision);
+C_nm = zeros(length(k), length(r_pressure), (N+1)^2, precision);
 
 condition_number = zeros(length(k), 1);
 
@@ -52,14 +29,14 @@ for bin = 2 : length(k) % skip DC
     display_progress(bin/length(k));
     
     % (position x mode)
-    Y_nm_pressure = zeros(length(r_outer), (N+1)^2);
-    Y_nm_gradient = zeros(length(r_outer), (N+1)^2);
-    Y_nm_cardioid = zeros(length(r_outer), (N+1)^2);
+    Y_nm_pressure = zeros(length(r_pressure), (N+1)^2);
+    Y_nm_gradient = zeros(length(r_pressure), (N+1)^2);
+    Y_nm_cardioid = zeros(length(r_pressure), (N+1)^2);
     
     % create SH matrices to be inverted
     for n = 0 : N
         
-        bessel = sphbesselj(n, k(bin).*r_outer);
+        bessel = sphbesselj(n, k(bin).*r_pressure);
          
         for m = -n : n
             
@@ -68,9 +45,9 @@ for bin = 2 : length(k) % skip DC
             Y_nm_pressure(:, n^2+n+m+1) = 4*pi .* 1i^n .* bessel .* sh_outer;
             
             % gradient            
-            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vec(1, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_mid, col_mid, azi_mid, k(bin), 'dx');
-            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vec(2, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_mid, col_mid, azi_mid, k(bin), 'dy');
-            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vec(3, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_mid, col_mid, azi_mid, k(bin), 'dz');
+            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vector(1, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_velocity, col, azi, k(bin), 'dx');
+            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vector(2, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_velocity, col, azi, k(bin), 'dy');
+            Y_nm_gradient(:, n^2+n+m+1) = Y_nm_gradient(:, n^2+n+m+1) + normal_vector(3, :).' .* 4*pi .* 1i^n .* d_sh_mode(n, m, r_velocity, col, azi, k(bin), 'dz');
             
             % cardioid
             Y_nm_cardioid(:, n^2+n+m+1) = Y_nm_pressure(:, n^2+n+m+1) + 1./(1i.*k(bin)) .* Y_nm_gradient(:, n^2+n+m+1);
@@ -80,14 +57,14 @@ for bin = 2 : length(k) % skip DC
             if n <= 1
                 % Relax the regularization for orders 0 and 1 for low
                 % frequencies
-                alpha = 10^(     80        /20) * ones(size(r_outer));
+                alpha = 10^(     80        /20) * ones(size(r_pressure));
             else 
-                alpha = 10^(max_attenuation/20) * ones(size(r_outer));
+                alpha = 10^(max_attenuation/20) * ones(size(r_pressure));
             end
             
             if n > 1
                 % regularize high orders and low frequencies harder
-                alpha(k(bin).*r_outer < n) = 10^(40/20); 
+                alpha(k(bin).*r_pressure < n) = 10^(40/20); 
             end
         
             Y_nm_cardioid(  :, n^2+n+m+1) = soft_clipping(Y_nm_cardioid(  :, n^2+n+m+1), alpha);
