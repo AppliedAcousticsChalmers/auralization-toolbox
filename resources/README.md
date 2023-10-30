@@ -27,7 +27,7 @@ data =
 
 ## Surface Data
 
-Surface data can be processed in two formats:
+Surface data can be processed for two different geometries (`spherical_surface` and `cubical_surface`) and in two formats. The two formats are explained below.
 
 ### Single-Layer Pressure and Normal Particle Velocity
 
