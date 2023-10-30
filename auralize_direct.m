@@ -110,7 +110,7 @@ elseif strcmp(grid_shape, 'spherical_surface') || strcmp(grid_shape, 'cubical_su
     
     display_progress('Computing the calibration data:');
     
-    for index = 39 : length(azi_pw_deg) %%%%%%%%%%%%%%%%%%%%%
+    for index = 1 : length(azi_pw_deg)
         
         display_progress(index/length(azi_pw_deg));
         
