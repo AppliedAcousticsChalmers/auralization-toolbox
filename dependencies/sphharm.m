@@ -5,9 +5,9 @@ function [ Ynm ] = sphharm(n, m, beta, alpha, type)
 %
 % n           - spherical harmonic degree
 % m           - spherical harmonic order
-% beta        - colatitude to be calculated
+% beta        - colatitude (zenith angle) to be calculated (not elevation!!!)
 % alpha       - azimuth to be calculated 
-% type        - 'complex' (default), 'complex_wo_cs', ' 'real'
+% type        - 'complex' (default), 'complex_wo_cs', 'real'
 %
 % alpha and beta can be arrays but have to be of same size or one of them
 % has to be a scalar.

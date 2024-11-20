@@ -4,37 +4,79 @@
 
 ## Overview
 
-The Chalmers Auralization Toolbox is a collection of MATLAB scripts that auralize sampled sound fields. The sound field quantity that is sampled can be either the sound pressure or the combination of sound pressure and particle velocity (or equivalently the sound pressure gradient). The primary purpose is auralization of data simulated with methods like FDTD, FEM, BEM, and the like.
+The Chalmers Auralization Toolbox is a collection of MATLAB scripts that auralize sampled sound fields binaurally. The sound field quantity that is sampled can be either the sound pressure or the combination of sound pressure and particle velocity (or equivalently the sound pressure gradient). The primary purpose is auralization of data simulated with methods like FDTD, FEM, BEM, and the like. The sampled data can be converted to either an ambisonic representation, which can then be rendered in realtime with head tracking with standard ambisonic tools like [SPARTA AmbiBIN](https://leomccormack.github.io/sparta-site/docs/plugins/sparta-suite/#ambibin) or the [BinauralDecoder](https://plugins.iem.at/docs/plugindescriptions/#binauraldecoder) from the IEM Plugin Suite (*ambisonic auralization*, find more details [below](#ambi)). Or, the sampled data can be auralized binaurally without an intermediate format (*direct auralization*).
 
-**Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/auditorium-acoustics-2023/). 
+The following preprint comparises a comprehensive overview of the capabilities of the toolbox:
+
+> J. Ahrens. Perceptually Transparent Binaural Auralization of Simulated Sound Fields. JAES (submitted) [ [pdf](https://arxiv.org/abs/2412.05015) ]
+
+It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2024b/). 
 
 The figure below illustrates the types of sampling grids that can be processed (volumetric, spherical surfaces, and cubical surfaces). 
 
 ![grids](resources/grids.png "grids")
 
-The sampled data can be converted to either an ambisonic representation, which can then be rendered both binaurally and using loudspeaker arrays. The conventions that we use (i.e. N3D and ACN) are compatible with software tools like [SPARTA](https://leomccormack.github.io/sparta-site/) and the [IEM Plugin Suite](https://plugins.iem.at/). Or, the sampled data can be rendered binaurally without an intermediate format (*direct rendering*).
-
-You'll need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the SOFA MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
+You will need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the [SOFA](https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)) MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
 
 The toolbox was originally presented in 
 
-> Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023 [ [pdf](https://research.chalmers.se/publication/537678/file/537678_Fulltext.pdf) ]
+> Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023 [ [pdf](https://research.chalmers.se/publication/539920/file/539920_Fulltext.pdf) ]
 
-The work is on-going, so please revisit this repository regularly for updates. Note that some of the implementations are in an experimental state. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting.
+## Quick Start
+
+Perform auralization of example data that we provide (see below) by running the script `perform_auralization.m`. 
+
+Performing your own custom auralization typically comprises the following workflow:
+
+* Define the sampling grid and store it in the required format. See the script `create_sampling_grid.m` for details and examples. Use the script `plot_grid.m` to visualize your grid.
+* Compute the auralization matrix (a set of filters) for the chosen grid. Use the scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` for this.  Note that the computation of a serious auralization matrix is costly and can take a few minutes. Serious auralization matrices for direct auralization may even take hours to compute (for one head orientation...).
+* Get some acoustic simulation data for the chosen grid and execute the script `perform_auralization.m` to auralize them with your auralization matrix.
+
+We provide example data that allow you to execute above named scripts out-of-the-box.
+
+The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` will also create figures similar to Fig. 4 in the JAES manuscript so that you can verify the auralization matrix. The script also auralizes example anechoic data using the computed the auralization matrix and stores the binaural signals in audio files.
+
+See the folders `resources` and `room_data` and the script `compute_auralization_matrix.m` to learn how to perform your own custom auralization.
 
 ## Example Data
 
-In the folder `resources`, we provide example data for a reverberant room with a reverb decay time of around 1 s ("big hall") as well as a much dryer living-room type room ("living room"). You will find information on the input data format in that folder. The data are based on measurements of the responses of the two rooms. We will explain shortly how we processed the data to obtain both ground truth binaural signals as well as the sound pressure at arbitrary points in space.
+In the folder `resources`, we provide example sound field data for a reverberant room with a reverb decay time of around 1 s ("big hall") in the file `resources/sound_field_pv_spherical_surface_big_hall_L81.mat`. The sampling grid is a spherical surface grid with a radius of 70 mm and 81 nodes on a Fliege grid. The matching precomputed auralization matrix is provided the file `auralization_matrices/auralization_matrix_ambisonics_pv_spherical_surface_L81.mat` and performs 7th-order auralization. We chose it because 7th order is the highest that the plugins that we use in the example Reaper project `binaural_rendering.rpp` support (find more details about the Reaper project [below](#ambi)). 
 
-## Upcoming Features
+As we documented in (Ahrens, 2024) referenced above, spherical grids in comination with ambisonic auralization are most favorable. Guaranteed perceptual transparency of the auralization requires in the order of 289 points (of pressure and velocity). You may find that the grid with 81 points allows for very good auralization already. 100 points are noticeably better, and the remaining perceptual difference between the auralization and the ground truth is really minuscule for this choice. The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` compute anechoic binaural audio examples that will allow for you to verify instantly if the result is as desired.
 
-The example grids comprise approx. 300 sampling points. This produces good results, but the auralization is not perfectly transparent meaning that there are cases in which the auralization can be distinguished from the ground truth (refer to the audio examples above). Increasing the number of sampling point will eventually overcome the deviations. Yet, we are working on updates on the methods that can potentially yield perceptually transparent auralization with the present or even lower number of sampling points. 
+Note that we provide only very few precomputed auralization matrices in the folder `auralization_matrices/` because serious auralization matrices produce file sizes in the order of hundreds of MB and the matched room data even more than that, and we do not want to clog the internet.
 
-The direct rendering is rather slow currently (in the order of minutes). This is because this method requires the sound pressure due to a large number of plane waves to be computed on the sampling grid. For the time being, we chose to compute this via a spherical harmonic representation, which is computationally expensive. We will replace this in the future with a more efficient computation, which will reduce the computation time to seconds. 
+The example data are based on measurements of the responses of the two rooms. The example sound field data were computed via the spatial decomposition method as explained in (Ahrens, 2024) referenced above using the scripts from [this repository](https://github.com/AppliedAcousticsChalmers/acoustic-room-responses). You can create your own input data and binaural ground truth to compare against using the scripts `sdm_to_pressure_velocity.m` and `sdm_to_binaural.m` from that repository. Use `create_sampling_grid.m` and `plot_sampling_grid.m` from the present repository to create and plot sampling grids.
 
-We will provide examples that demonstrate how data from the most common room acoustic simulation softwares can be auralized with our toolbox. 
+You will find information on the input data format in the folder `resources/`. We will shortly add example projects for commercial room simulation softwares to demonstrate how their output can be converted to the required input format.
+
+## <a name="ambi"></a> Playback With External Software
+
+The output from the ambisonic methods in the Chalmers Auralization Toolbox is in ACN and N3D format and is compatible with standard ambisonic tools like [SPARTA AmbiBIN](https://leomccormack.github.io/sparta-site/docs/plugins/sparta-suite/#ambibin) or the [BinauralDecoder](https://plugins.iem.at/docs/plugindescriptions/#binauraldecoder). See the example [Reaper](https://www.reaper.fm/) project `binaural_rendering.rpp`. Instructions for how to enable a head tracker in Reaper can be found [here](https://github.com/AppliedAcousticsChalmers/ambisonic-encoding).
+
+Our ambisonic signals are designed to be reproduced binaurally with MagLS HRTFs. It is technically possible to reproduce them with loudspeaker arrays, but we have not tested if our equalization is appropriate for that. BinauralDecoder uses MagLS HRTFs by default. I cannot recall off the top of my head which dataset it uses, but it will be great anyway. We provide the exact same MagLS HRTFs that we used in our preceptual validation experiment referenced above in SOFA format in the folder `hrtfs` for the use with binaural renderers that do otherwise not employ MagLS HRTFs.
+
+MagLS was originally proposed in
+
+> C. Schörkhuber, M. Zaunschirm, and R. Höldrich. Binaural Rendering of Ambisonic Signals via Magnitude Least Squares. In Proceedings of DAGA, pages 339–342, Munich, Germany, March 2018.
+
+## Documentation of the Signal Processing
+
+As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before. [Here](resources/Chalmers_Auralization_Toolbox.pdf), you will find documentation on all employed methods (including the new surface sampling methods) that the Chalmers Auralization Toolbox comprises. 
+
+## Things to Be Aware of
+
+See the folder `resources` for information on the coordinate system that we employ. The grid coordinates based on which the auralization matrix is computed have to be such that the sampling points are centered around the coordinate origin. That coordinate origin is then the vantage point of the auralization. The direction of the positive x axis is 'straight ahead'.
+
+It was not straightforward to find parameters that allow for perceptually transparent auralization. In particular, it may happen that the auralization is impaired if you use sampling grids of size that is different from our preferred size of 140 mm diameter/edge length. It may require fiddling with regularization and more to get it sorted out. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting. 
+
+We found it particularly tricky to get satisfctory results from cubical volumetric grids when using ambisonic auralization. Consider using lines 24-25 in the script ``compute_auralization_matrix_ambisonics.m`` in these cases.
+
+It will not be straightforward to incorporate HRTFs other than those that we are using.
 
 ## References
+
+Some parts of the toolbox base on the following publications. Other parts are original contributions. See the Section 'Documentation of the Signal Processing' above for more details.
 
 Auralization of volumetrically sampled sound fields via ambisonics:
 
@@ -49,8 +91,6 @@ Auralization of sound fields sampled on a spherical surface via ambisonics:
 Direct auralization of volumetrically sampled sound fields:
 
 > M. A. Poletti and U. P. Svensson, 'Beamforming Synthesis of Binaural Responses From Computer Simulations of Acoustic Spaces,' J. Acoust. Soc. Am. 124, pp. 301–315 (2008)
-
-As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before. [Here](resources/Chalmers_Auralization_Toolbox_v1.pdf), you'll find documentation on all ambisonics-based methods that the Chalmers Auralization Toolbox comprises. A detailed documentation of the direct methods will be provided shortly.
 
 ## License
 

@@ -1,10 +1,11 @@
 function [sh_coeffs_t] = get_sh_coefficients_t(irs, c_nm, N)
 
-fprintf('Computing the SH coefficients ... ');
+irs = double(irs); % fftfilt requires this
+
+% zero pad for the convolution
+irs = [irs; zeros(size(c_nm, 1), size(irs, 2))];
 
 sh_coeffs_t = zeros(size(irs, 1), (N+1)^2);
-
-irs = double(irs); % fftfilt requires this
 
 % loop over all SH modes
 for n = 0 : N
@@ -15,8 +16,6 @@ for n = 0 : N
        
    end
 end
-
-fprintf('done.\n\n');
 
 end
 

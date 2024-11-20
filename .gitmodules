@@ -1,0 +1,3 @@
+[submodule "hrtfs/eMagLS"]
+	path = hrtfs/eMagLS
+	url = https://github.com/thomasdeppisch/eMagLS.git
