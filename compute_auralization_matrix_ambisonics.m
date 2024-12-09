@@ -62,7 +62,7 @@ assert(rem(taps_c_nm, 2) == 0); % enforce even length
 
 if strcmp(grid_shape, 'cubical_volume')
       
-    fprintf(2, ['Consider uncommenting the lines 29-30 if you are using a cubical ' ...
+    fprintf(2, ['Consider uncommenting the lines 24-25 if you are using a cubical ' ...
                 'volumetric grid, and you are unsatisfied with the result.\n\n']);
 
     % avoid syntax error
@@ -258,7 +258,7 @@ output_file_name = sprintf('auralization_matrices/auralization_matrix_ambisonics
 fprintf('Storing the auralization matrix together with the sampling grid in file ''%s'' ... ', output_file_name);
 
 if exist('sampling_points_outer', 'var')
-    save(output_file_name, 'c_nm', fs', 'eq_ir', 'sampling_points_inner', 'sampling_points_outer', '-v7.3');
+    save(output_file_name, 'c_nm', 'fs', 'eq_ir', 'sampling_points_inner', 'sampling_points_outer', '-v7.3');
 else
     save(output_file_name, 'c_nm', 'fs', 'eq_ir', 'sampling_points', '-v7.3');
 end
