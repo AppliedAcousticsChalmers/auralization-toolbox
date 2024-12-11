@@ -14,7 +14,9 @@ fs = 48000; % sampling frequency
 
 % length of quadrature matrix in time domain
 taps_c_nm = 4096; % 4096, good for grids of head size (longer is great, too)
-taps_pw   = [1024 8192]; % taps_pw(1): effective length of pw simulation, taps_pw(2): length to zero pad for in the evaluation
+
+% dynamic range of the singular values
+dynamic_range_dB = [20 40]; % 20 dB (f = 0-100 Hz), 40 dB (f > 100 Hz)
 
 % -------------------------------------------------------------------------
 
@@ -24,6 +26,9 @@ precision = 'single'; % 'single' (32-bit floating point) or 'double' (64-bit flo
 
 % -------------------------------------------------------------------------
 
+% determine parameters for the sample plane wave to be auralized
+taps_pw = [1024, 1024+taps_c_nm]; % taps_pw(1): effective length of pw simulation, taps_pw(2): length to zero pad to for the auralization preview
+
 fprintf('\n');
 
 % load the sampling grid (incl. grid_shape and layer_type)
@@ -31,7 +36,8 @@ fprintf('Loading sampling grid from file ''%s''.\n\n', grid_file);
 
 load(grid_file);
 
-fprintf('Computing direct auralization matrix for ''%s'' grid and head orientation %d deg. \n\n', grid_shape, round(head_orientation_azimuth_deg));
+fprintf('Computing direct auralization matrix for ''%s'' grid and head orientation %d deg. \n', grid_shape, round(head_orientation_azimuth_deg));
+fprintf('Dynamic range: %d dB (f = 0-100 Hz), %d dB (f > 100 Hz)\n\n', dynamic_range_dB);
 
 data_conversion_function = str2func(precision);
     
@@ -106,7 +112,7 @@ else
     end
 end
 
-% --------------- create plane wave grid for least-squares fit ------------
+% ------- create grid of plane wave indicence directions for LS fit -------
 
 % make sure to have more than spatial nodes and that is a square number
 no_of_pws = (ceil(sqrt(size(sampling_points, 2))) + 3)^2;
@@ -118,7 +124,7 @@ grid_pw = points_on_sphere(no_of_pws);
 azi_fliege_deg = azi_fliege_rad/pi*180;
 ele_fliege_deg = ele_fliege_rad/pi*180;
 
-% ---------------------------- compute c_nm -------------------------------
+% ------------------------ compute c_l and c_r ----------------------------
 
 % --- eMagLS2 transition frequency ---
 no_of_nodes = size(sampling_points, 2);
@@ -149,9 +155,9 @@ fprintf('done.\n\n');
 
 % TODO: take 'precision' into account
 if strcmp(layer_type, 'single') || strcmp(grid_shape, 'cubical_volume')
-    [c_l, c_r] = compute_c_direct(head_orientation_azimuth_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw(1), f_transition, fs, grid_shape, layer_type, normal_vector, rho, sampling_points);
+    [c_l, c_r] = compute_c_direct(head_orientation_azimuth_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw(1), f_transition, fs, dynamic_range_dB, grid_shape, layer_type, normal_vector, rho, sampling_points);
 else
-    [c_l, c_r] = compute_c_direct(head_orientation_azimuth_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw(1), f_transition, fs, grid_shape, layer_type, normal_vector, rho, sampling_points, sampling_points_inner, sampling_points_outer);
+    [c_l, c_r] = compute_c_direct(head_orientation_azimuth_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw(1), f_transition, fs, dynamic_range_dB, grid_shape, layer_type, normal_vector, rho, sampling_points, sampling_points_inner, sampling_points_outer);
 end
 
 % ----------------- get sample sound fields for the evaluation ------------

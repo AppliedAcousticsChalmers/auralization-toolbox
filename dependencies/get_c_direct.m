@@ -1,4 +1,4 @@
-function [c_l_irs, c_r_irs, condition_number] = get_c_direct(irs_calibration, hrirs_calibration_l, hrirs_calibration_r, fs, f_transition)
+function [c_l_irs, c_r_irs, condition_number] = get_c_direct(irs_calibration, hrirs_calibration_l, hrirs_calibration_r, fs, f_transition, dynamic_range_dB)
 %
 % irs_calibration: input signal
 % hrirs_calibration_l, hrirs_calibration_r: desired output signal
@@ -63,10 +63,10 @@ for bin = 1 : size(tfs, 1)
 
     if f(bin) < 100 
         % this helps much with cardioid nodes
-        svd_reg = 0.1; % 20 dB
+        svd_reg = 10^(-dynamic_range_dB(1)/20); % 20 dB
         %svd_reg = 0.03; % 30 dB (should be fine, too; to be confirmed)
     else
-        svd_reg = 0.01; % 40 dB
+        svd_reg = 10^(-dynamic_range_dB(2)/20); % 40 dB
     end
 
     %pwGrid = smairMat(:,:,bin) * Y_conj;

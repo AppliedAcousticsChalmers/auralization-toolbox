@@ -1,4 +1,4 @@
-function [c_nm_left, c_nm_right, condition_number] = compute_c_direct(head_orientation_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw, f_transition, fs, grid_shape, layer_type, normal_vector, rho, sampling_points, varargin)
+function [c_l, c_r, condition_number] = compute_c_direct(head_orientation_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw, f_transition, fs, dynamic_range_dB, grid_shape, layer_type, normal_vector, rho, sampling_points, varargin)
 % rotates the HRTF set to account for the desired head orientation
 % computes anechoic data for the least-squares fit and performs that fit
 
@@ -82,7 +82,7 @@ fprintf('Computing the auralization matrices (using eMagLS2 above %d Hz) ... ', 
 
 
 % the dimensions of C_nm are (no. of frequency bins x no. of sampling positions)        
-[c_nm_left, c_nm_right, condition_number] = get_c_direct(sampled_sound_field_tmp, squeeze(hrirs_rot_sofa.Data.IR(indices_hrirs_calibration, 1, :)).', squeeze(hrirs_rot_sofa.Data.IR(indices_hrirs_calibration, 2, :)).', fs, f_transition);
+[c_l, c_r, condition_number] = get_c_direct(sampled_sound_field_tmp, squeeze(hrirs_rot_sofa.Data.IR(indices_hrirs_calibration, 1, :)).', squeeze(hrirs_rot_sofa.Data.IR(indices_hrirs_calibration, 2, :)).', fs, f_transition, dynamic_range_dB);
 
 fprintf(' done.\n\n');
 

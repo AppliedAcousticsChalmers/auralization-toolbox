@@ -29,14 +29,14 @@ Perform auralization of example data that we provide (see below) by running the 
 Performing your own custom auralization typically comprises the following workflow:
 
 * Define the sampling grid and store it in the required format. See the script `create_sampling_grid.m` for details and examples. Use the script `plot_grid.m` to visualize your grid.
-* Compute the auralization matrix (a set of filters) for the chosen grid. Use the scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` for this.  Note that the computation of a serious auralization matrix is costly and can take a few minutes. Serious auralization matrices for direct auralization may even take hours to compute (for one head orientation...).
+* Compute the auralization matrix (a set of filters) for the chosen grid. Use either of the scripts `compute_auralization_matrix_ambisonics.m` or `compute_auralization_matrix_direct.m` for this.  Note that the computation of a serious auralization matrix is costly and can take a few minutes. Serious auralization matrices for direct auralization may even take hours to compute (for one head orientation...). The computation with the example data that we provide is quick.
 * Get some acoustic simulation data for the chosen grid and execute the script `perform_auralization.m` to auralize them with your auralization matrix.
 
 We provide example data that allow you to execute above named scripts out-of-the-box.
 
 The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` will also create figures similar to Fig. 4 in the JAES manuscript so that you can verify the auralization matrix. The script also auralizes example anechoic data using the computed the auralization matrix and stores the binaural signals in audio files.
 
-See the folders `resources` and `room_data` and the script `compute_auralization_matrix.m` to learn how to perform your own custom auralization.
+See the folder `room_data` to learn what format to bring your own simulation data to convert to to auralize them.
 
 ## Example Data
 
@@ -44,11 +44,11 @@ In the folder `resources`, we provide example sound field data for a reverberant
 
 As we documented in (Ahrens, 2024) referenced above, spherical grids in comination with ambisonic auralization are most favorable. Guaranteed perceptual transparency of the auralization requires in the order of 289 points (of pressure and velocity). You may find that the grid with 81 points allows for very reasonable auralization already. My personal favorite is 225 points. The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` compute anechoic binaural audio examples that will allow for you to verify instantly if the result for your parameter choice is as desired.
 
-Note that we provide only very few precomputed auralization matrices in the folder `auralization_matrices/` because serious auralization matrices produce file sizes in the order of hundreds of MB and the matched room data even more than that, and we do not want to clog the internet.
+Note that we provide only very few precomputed auralization matrices in the folder `auralization_matrices` because serious auralization matrices produce file sizes in the order of hundreds of MB and the matched room data even more than that, and we do not want to clog the internet.
 
-The example data are based on measurements of the responses of the two rooms. The example sound field data were computed via the spatial decomposition method as explained in (Ahrens, 2024) referenced above using the scripts from [this repository](https://github.com/AppliedAcousticsChalmers/acoustic-room-responses). You can create your own input data and binaural ground truth to compare against using the scripts `sdm_to_pressure_velocity.m` and `sdm_to_binaural.m` from that repository. Use `create_sampling_grid.m` and `plot_sampling_grid.m` from the present repository to create and plot sampling grids.
+The example data are based on measurements of the response of a real room. The example sound field data were computed via the spatial decomposition method as explained in (Ahrens, 2024) referenced above using the scripts from [this repository](https://github.com/AppliedAcousticsChalmers/acoustic-room-responses). You can create your own input data and binaural ground truth to compare against using the scripts `sdm_to_pressure_velocity.m` and `sdm_to_binaural.m` from that repository. Use `create_sampling_grid.m` and `plot_sampling_grid.m` from the present repository to create and plot sampling grids.
 
-You will find information on the input data format in the folder `resources/`. We will shortly add example projects for commercial room simulation softwares to demonstrate how their output can be converted to the required input format.
+You will find information on the input data format in the folder `resources`. We will shortly add example projects for commercial room simulation softwares to demonstrate how their output can be converted to the required input format.
 
 ## <a name="ambi"></a> Playback With External Software
 
