@@ -70,9 +70,9 @@ See the folder `resources` for information on the coordinate system that we empl
 
 It was not straightforward to find parameters that allow for perceptually transparent auralization. In particular, it may happen that the auralization is impaired if you use sampling grids of size that is different from our preferred size of 140 mm diameter/edge length. It may require fiddling with regularization and more to get it sorted out. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting. 
 
-We found it particularly tricky to get satisfctory results from cubical volumetric grids when using ambisonic auralization. Consider using lines 24-25 in the script ``compute_auralization_matrix_ambisonics.m`` in these cases.
+We found it particularly tricky to get satisfactory results from cubical volumetric grids when using ambisonic auralization. Consider playing around with the values of the variable `taps_c_nm` in ``compute_auralization_matrix_ambisonics.m`` in these cases.
 
-It will not be straightforward to incorporate HRTFs other than those that we are using.
+It will not be straightforward to incorporate HRTFs other than those that we are using. But it is possible.
 
 ## References
 

@@ -15,15 +15,6 @@ head_orientation_azimuth_deg = 0; % this is only for computing the verificatiom 
 
 fs = 48000; % sampling frequency
 
-% length of quadrature matrix in time domain
-taps_c_nm = 1024; % 1024, good for grids of head size (longer is great, too)
-taps_pw   = [1024 2048]; % taps_pw(1): effective length of pw simulation, taps_pw(2): length to zero pad to in the evaluation
-
-% use the following with cubical volume grids to avoid the faint echo on
-% the contralateral side
-%taps_c_nm = 4096;
-%taps_pw   = [1024 2*4096];
-
 % -------------------------------------------------------------------------
 
 c         = 343; % m/s, speed of sound
@@ -41,7 +32,17 @@ fprintf('Loading sampling grid from file ''%s''.\n\n', grid_file);
 
 load(grid_file);
 
-fprintf('Computing ambisonic auralization matrix for ''%s'' grid. N = %d.\n\n', grid_shape, N);
+% length of quadrature matrix in time domain
+if strcmp(grid_shape, 'cubical_volume')
+    % we need this with cubical volume grids to avoid the faint echo on
+    % the contralateral side
+    taps_c_nm = 4096;
+else
+    taps_c_nm = 1024; % 1024, good for grids of head size (longer is great, too)
+end
+
+% determine parameters for the sample plane wave to be auralized
+taps_pw = [1024, 1024+taps_c_nm]; % taps_pw(1): effective length of pw simulation, taps_pw(2): length to zero pad to for the auralization preview
 
 % Regularization of the SH matrix, dynamic range of singular values
 if (strcmp(grid_shape, 'spherical_surface') && N > 4)
@@ -50,8 +51,7 @@ else
     dynamic_range_dB = 40;
 end
 
-fprintf('Limiting the dynamic range of the singular values to %d dB.\n\n', round(dynamic_range_dB));
-
+fprintf('Computing ambisonic auralization matrix with %d taps for ''%s'' grid. N = %d. Regularization: %d dB\n\n', taps_c_nm, grid_shape, N, round(dynamic_range_dB));
 
 data_conversion_function = str2func(precision);
 
@@ -61,10 +61,7 @@ assert(rem(taps_c_nm, 2) == 0); % enforce even length
 % ------------------- compute quadrature matrix C_nm ---------------------
 
 if strcmp(grid_shape, 'cubical_volume')
-      
-    fprintf(2, ['Consider uncommenting the lines 24-25 if you are using a cubical ' ...
-                'volumetric grid, and you are unsatisfied with the result.\n\n']);
-
+    
     % avoid syntax error
     normal_vector = [];
 
@@ -255,7 +252,7 @@ end
 
 output_file_name = sprintf('auralization_matrices/auralization_matrix_ambisonics_%s_%s_L%d.mat', data_type_string, grid_shape, size(sampling_points, 2));
 
-fprintf('Storing the auralization matrix together with the sampling grid in file ''%s'' ... ', output_file_name);
+fprintf('Storing the auralization matrix in file ''%s'' ... ', output_file_name);
 
 if exist('sampling_points_outer', 'var')
     save(output_file_name, 'c_nm', 'fs', 'eq_ir', 'sampling_points_inner', 'sampling_points_outer', '-v7.3');
