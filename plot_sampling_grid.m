@@ -25,16 +25,20 @@ if strcmp(layer_type, 'double')
     plot3(sampling_points_inner(1, :), sampling_points_inner(2, :), sampling_points_inner(3, :), '.');
     hold off;
 
+    % find farthest sampling point
+    r = vecnorm(sampling_points_outer, 2, 1);
 else
     plot3(sampling_points(1, :), sampling_points(2, :), sampling_points(3, :), '.', 'MarkerSize', 12);
+
+    % find farthest sampling point
+    r = vecnorm(sampling_points, 2, 1);
 end
 
 grid on;
 box on;
 axis equal;
 
-% find farthest sampling point
-r = vecnorm(sampling_points, 2, 1);
+
 axis([-1 1 -1 1 -1 1] * max(r)*1.2);
 
 xlabel('x (m)');
