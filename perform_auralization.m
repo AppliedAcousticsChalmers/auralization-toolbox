@@ -6,9 +6,11 @@ addpath('dependencies/');
 
 % auralization_matrix_file (comprises also the sampling grid coordinates)
 auralization_matrix_file = 'auralization_matrices/auralization_matrix_ambisonics_pv_spherical_surface_L81.mat';
+%auralization_matrix_file = 'auralization_matrices/auralization_matrix_ambisonics_pp_spherical_surface_L81.mat';
 
 % sound field data
 simulation_data_file     = 'room_data/sound_field_pv_spherical_surface_big_hall_L81.mat'; 
+%simulation_data_file     = 'room_data/sound_field_pp_spherical_surface_big_hall_L81.mat'; 
 
 audio_file               = 'resources/drum_loop_48k.wav';
 
@@ -26,7 +28,7 @@ auralization_matrix = load(auralization_matrix_file);
 
 fprintf('\n');
 
-if exist('simulation_data_file', 'var')
+% if exist('simulation_data_file', 'var')
     
     simulation_data = load(simulation_data_file);
     
@@ -34,14 +36,22 @@ if exist('simulation_data_file', 'var')
     
     fprintf('Auralizing the data in file ''%s''\n', simulation_data_file);
 
-else 
-
-    fprintf('Auralizing anechoic data\n');
-
-    % avoid syntax errors
-    simulation_data.pressure = 0;
-
-end
+% else % unfinished
+% 
+%     fprintf('Auralizing anechoic data\n');
+% 
+%     % ----------------- get sample sound fields for the evaluation ------------
+%     if exist('sampling_points_outer', 'var')
+%         [~, sampled_sound_field_0 ] = compute_sample_sound_field_for_eq(0,  0, 0, fs, taps_pw, [], grid_shape, normal_vector, c, rho, sampling_points_inner, sampling_points_outer); 
+%     else
+%         [~, sampled_sound_field_0 ] = compute_sample_sound_field_for_eq(0,  0, 0, fs, taps_pw, [], grid_shape, normal_vector, c, rho, sampling_points);
+%     end
+% 
+%     % avoid syntax errors
+%     simulation_data.pressure = 0;
+%     simulation_data.fs = auralization_matrix.fs;
+% 
+% end
 
 fprintf('with the auralization matrix in file ''%s''.\n\n', auralization_matrix_file);
 
@@ -54,7 +64,7 @@ if isfield(simulation_data, 'velocity')
     sampled_sound_field = simulation_data.pressure - rho*c .* simulation_data.velocity;
 % double layer
 elseif isfield(simulation_data, 'pressure_inner')
-    [~, sampled_sound_field] = compute_cardioid_from_pressure(simulation_data.sampling_points_inner, simulation_data.sampling_points_outer, simulation_data.pressure_inner, simulation_data.pressure_outer, fs, c);
+    [~, sampled_sound_field] = compute_cardioid_from_pressure(simulation_data.sampling_points_inner, simulation_data.sampling_points_outer, simulation_data.pressure_inner, simulation_data.pressure_outer, simulation_data.fs, c);
 % volumetric grid
 else
     sampled_sound_field = simulation_data.pressure;

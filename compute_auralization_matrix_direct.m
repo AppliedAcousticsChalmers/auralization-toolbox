@@ -200,7 +200,7 @@ end
 
 output_file_name = sprintf('auralization_matrices/auralization_matrix_direct_%s_%s_L%d.mat', data_type_string, grid_shape, size(sampling_points, 2));
 
-fprintf('Storing the auralization matrix together with the sampling grid in file ''%s'' ... ', output_file_name);
+fprintf('Storing the auralization matrix in file ''%s'' ... ', output_file_name);
 
 if exist('sampling_points_outer', 'var')
     save(output_file_name, 'c_l', 'c_r', 'fs', 'sampling_points_inner', 'sampling_points_outer', '-v7.3');

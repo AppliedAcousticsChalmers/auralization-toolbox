@@ -18,6 +18,8 @@ The figure below illustrates the types of sampling grids that can be processed (
 
 You will need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the [SOFA](https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)) MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
 
+The surface grids require either a single layer of both sound pressure and particle velocity or a double layer of sound pressure.
+
 The toolbox was originally presented in 
 
 > Jens Ahrens, "A Software Tool for Auralization of Simulated Sound Fields," Auditorium Acoustics, Athens, Greece, 2023 [ [pdf](https://research.chalmers.se/publication/539920/file/539920_Fulltext.pdf) ]
@@ -60,7 +62,7 @@ MagLS was originally proposed in
 
 > C. Schörkhuber, M. Zaunschirm, and R. Höldrich. Binaural Rendering of Ambisonic Signals via Magnitude Least Squares. In Proceedings of DAGA, pages 339–342, Munich, Germany, March 2018.
 
-## Documentation of the Signal Processing
+## <a name="dsp"></a>Documentation of the Signal Processing
 
 As to our awareness, direct auralization of sound fields sampled along surfaces as well as auralization of sound fields sampled on a cubical surface via ambisonics has not been presented before. [Here](resources/Chalmers_Auralization_Toolbox.pdf), you will find documentation on all employed methods (including the new surface sampling methods) that the Chalmers Auralization Toolbox comprises. 
 
@@ -72,11 +74,13 @@ It was not straightforward to find parameters that allow for perceptually transp
 
 We found it particularly tricky to get satisfactory results from cubical volumetric grids when using ambisonic auralization. Consider playing around with the values of the variable `taps_c_nm` in ``compute_auralization_matrix_ambisonics.m`` in these cases.
 
+We have not studied the requirements for the distance between the layers of a double pressure-layer grid (`_pp_` type data) in detail. In theory, the distance should be as small as possible but larger than 0. Our preliminary results suggest that distances in the order of 5 mm or smaller are uncritical. The accuracy at high frequencies declines gradually for distances larger than that so that is it not clear what exactly a useful threshold can be. As always, use the audio examples that will be computed for each tested case to judge for yourself.
+
 It will not be straightforward to incorporate HRTFs other than those that we are using. But it is possible.
 
 ## References
 
-Some parts of the toolbox base on the following publications. Other parts are original contributions. See the Section 'Documentation of the Signal Processing' above for more details.
+Some parts of the toolbox base on the following publications. Other parts are original contributions. See the Section [Documentation of the Signal Processing](#dsp) for more details.
 
 Auralization of volumetrically sampled sound fields via ambisonics:
 
