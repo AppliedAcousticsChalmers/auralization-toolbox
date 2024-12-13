@@ -5,7 +5,8 @@ function plot_sampling_grid(vargin)
 
 if nargin ~= 1
     % sampling grid
-    grid_file = 'resources/grid_spherical_surface_L25.mat';
+    grid_file = 'auralization_matrices/auralization_matrix_ambisonics_pp_spherical_surface_L81.mat';
+    %grid_file = 'resources/grid_spherical_surface_L25.mat';
 else
     grid_file = vargin;
 end
@@ -18,7 +19,7 @@ figure;
 set(gcf, 'Color', [1 1 1]);
 set(gcf, 'Position', [700 100 500 500]);
 
-if strcmp(layer_type, 'double')
+if exist('sampling_points_outer', 'var')
 
     plot3(sampling_points_outer(1, :), sampling_points_outer(2, :), sampling_points_outer(3, :), '.');
     hold on;

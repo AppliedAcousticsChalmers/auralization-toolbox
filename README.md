@@ -6,7 +6,7 @@
 
 The Chalmers Auralization Toolbox is a collection of MATLAB scripts that auralize sampled sound fields binaurally. The sound field quantity that is sampled can be either the sound pressure or the combination of sound pressure and particle velocity (or equivalently the sound pressure gradient). The primary purpose is auralization of data simulated with methods like FDTD, FEM, BEM, and the like. The sampled data can be converted to either an ambisonic representation, which can then be rendered in realtime with head tracking with standard ambisonic tools like [SPARTA AmbiBIN](https://leomccormack.github.io/sparta-site/docs/plugins/sparta-suite/#ambibin) or the [BinauralDecoder](https://plugins.iem.at/docs/plugindescriptions/#binauraldecoder) from the IEM Plugin Suite (*ambisonic auralization*, find more details [below](#ambi)). Or, the sampled data can be auralized binaurally without an intermediate format (*direct auralization*).
 
-The following preprint comparises a comprehensive overview of the capabilities of the toolbox:
+The following preprint comprises a comprehensive overview of the capabilities of the toolbox:
 
 > J. Ahrens. Perceptually Transparent Binaural Auralization of Simulated Sound Fields. JAES (submitted) [ [pdf](https://arxiv.org/abs/2412.05015) ]
 
