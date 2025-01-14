@@ -12,13 +12,13 @@ The following preprint comprises a comprehensive overview of the capabilities of
 
 It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2024b/). 
 
-The figure below illustrates the types of sampling grids that can be processed (volumetric, spherical surfaces, and cubical surfaces). 
+The figure below illustrates the types of sampling grids that can be processed (volumetric, cubical surfaces, and spherical surfaces). 
 
 ![grids](resources/grids.png "grids")
 
 You will need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the [SOFA](https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)) MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
 
-The surface grids require either a single layer of both sound pressure and particle velocity or a double layer of sound pressure.
+The surface grids require either a single layer of both sound pressure and particle velocity or a double layer of sound pressure. When using a double layer of sound pressure, make sure that the distance between the layers is not larger than 5 mm.
 
 The toolbox was originally presented in 
 

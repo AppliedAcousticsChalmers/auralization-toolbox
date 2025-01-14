@@ -68,7 +68,7 @@ if compute_velocity
 end
 
 % ----------------------- window the irs, just in case --------------------
-win      = hann(round_up_to_even(500*fs/48000)); 
+win      = hann(500); 
 fade_in  = win(1:end/2);
 fade_out = win(end/2+1:end);
 

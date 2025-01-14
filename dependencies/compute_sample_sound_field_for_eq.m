@@ -40,7 +40,7 @@ elseif strcmp(grid_shape, 'cubical_surface')
     % cubical single-layer surface
     if strcmp(layer_type, 'single') 
 
-        [pressure, velocity] = compute_plane_wave_on_grid(sampling_points, azi_pw_deg, ele_pw_deg, c, size(c_nm, 1), taps_pw_computation, fs, normal_vector, rho);
+        [pressure, velocity] = compute_plane_wave_on_grid(sampling_points, azi_pw_deg, ele_pw_deg, c, taps_pw, fs, normal_vector, rho);
 
     elseif strcmp(layer_type, 'double')
     
