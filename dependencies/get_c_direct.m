@@ -69,11 +69,10 @@ for bin = 1 : size(tfs, 1)
         svd_reg = 10^(-dynamic_range_dB(2)/20); % 40 dB
     end
 
-    %pwGrid = smairMat(:,:,bin) * Y_conj;
-    pwGrid = squeeze(tfs(bin, :, :));
+    pw_grid = squeeze(tfs(bin, :, :));
 
-    %[U, s, V] = svd(pwGrid.', 'econ', 'vector');
-    [U, s, V] = svd(pwGrid.', 'econ'); s = diag(s); % for older MATLAB versions
+    %[U, s, V] = svd(pw_grid.', 'econ', 'vector');
+    [U, s, V] = svd(pw_grid.', 'econ'); s = diag(s); % for older MATLAB versions
     s = 1 ./ max(s, svd_reg * max(s)); % regularize
     Y_reg_inv = conj(U) * (s .* V.');
 
@@ -84,8 +83,8 @@ for bin = 1 : size(tfs, 1)
 
     elseif f(bin) < fs/2*0.85 % magnitude least-squares above 
 
-        phi_l = angle(C_l(bin-1, :) * pwGrid);
-        phi_r = angle(C_r(bin-1, :) * pwGrid);
+        phi_l = angle(C_l(bin-1, :) * pw_grid);
+        phi_r = angle(C_r(bin-1, :) * pw_grid);
 
         if bin == size(tfs, 1) && ~mod(size(irs_calibration, 1), 2) % Nyquist bin, is even
            C_l(bin, :) = real(abs(hrtfs_l(bin, :)) .* exp(1i * phi_l)) * Y_reg_inv;
