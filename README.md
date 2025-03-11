@@ -1,3 +1,5 @@
+## hello
+
 # The Chalmers Auralization Toolbox
 
 ![graphical_abstract](resources/graphical_abstract.png "graphical_abstract")
@@ -11,6 +13,10 @@ The following preprint comprises a comprehensive overview of the capabilities of
 > J. Ahrens. Perceptually Transparent Binaural Auralization of Simulated Sound Fields. JAES (submitted) [ [pdf](https://arxiv.org/abs/2412.05015) ]
 
 It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2025a/). 
+
+Here is a short video summary (click to watch on YouTube):
+
+[![Video summary](https://img.youtube.com/vi/HFLa3EBbdaw/sddefault.jpg)](https://youtu.be/HFLa3EBbdaw)
 
 The figure below illustrates the types of sampling grids that can be processed (volumetric, cubical surfaces, and spherical surfaces). 
 
@@ -99,3 +105,4 @@ Direct auralization of volumetrically sampled sound fields:
 ## License
 
 The content of this repository is licensed under the terms of the MIT license. Please consult the file [LICENSE](LICENSE) for more information about this license.
+
