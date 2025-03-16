@@ -1,5 +1,3 @@
-## hello
-
 # The Chalmers Auralization Toolbox
 
 ![graphical_abstract](resources/graphical_abstract.png "graphical_abstract")
@@ -14,15 +12,11 @@ The following preprint comprises a comprehensive overview of the capabilities of
 
 It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2025a/). 
 
-Here is a short video summary (click to watch on YouTube):
-
-[![Video summary](https://img.youtube.com/vi/HFLa3EBbdaw/sddefault.jpg)](https://youtu.be/HFLa3EBbdaw)
-
 The figure below illustrates the types of sampling grids that can be processed (volumetric, cubical surfaces, and spherical surfaces). 
 
 ![grids](resources/grids.png "grids")
 
-You will need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the [SOFA](https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)) MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/). 
+You will need to download the employed HRIRs of a Neumann KU 100 manikin from [here](https://zenodo.org/record/3928297/files/HRIR_L2702.sofa?download=1) and store them in the subfolder `hrtfs` (The MATLAB script is going to do that automatically for you, both the downloading and creating that folder.) as well as the [SOFA](https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)) MATLAB API from [here](https://sourceforge.net/projects/sofacoustics/) and the function `AKfractOctSmooth.m` from [here](https://github.com/f-brinkmann/AKtools/blob/main/2_Tools/Tools/AKfractOctSmooth.m) (either install AKTools or copy the function into the folder `dependencies`. 
 
 The surface grids require either a single layer of both sound pressure and particle velocity or a double layer of sound pressure. When using a double layer of sound pressure, make sure that the distance between the layers is not larger than 5 mm.
 
@@ -74,6 +68,8 @@ As to our awareness, direct auralization of sound fields sampled along surfaces 
 
 ## Things to Be Aware of
 
+*Note we have noticed that certain inexpensive headphones can be have strong resonances at high frequencies that emphasize spatial aliasing considerably and thereby amplify differences between the auralization and the ground truth. Please be aware of this until we provide further insight into this.*
+
 See the folder `resources` for information on the coordinate system that we employ. The grid coordinates based on which the auralization matrix is computed have to be such that the sampling points are centered around the coordinate origin. That coordinate origin is then the vantage point of the auralization. The direction of the positive x axis is 'straight ahead'.
 
 It was not straightforward to find parameters that allow for perceptually transparent auralization. In particular, it may happen that the auralization is impaired if you use sampling grids of size that is different from our preferred size of 140 mm diameter/edge length. It may require fiddling with regularization and more to get it sorted out. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting. 
@@ -105,4 +101,3 @@ Direct auralization of volumetrically sampled sound fields:
 ## License
 
 The content of this repository is licensed under the terms of the MIT license. Please consult the file [LICENSE](LICENSE) for more information about this license.
-

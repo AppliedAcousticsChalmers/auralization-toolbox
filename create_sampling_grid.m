@@ -87,7 +87,7 @@ end
 % ---------------------------- store grid ---------------------------------
 
 if strcmp(grid_shape, 'cubical_volume') || strcmp(layer_type, 'single')
-    save(output_file_name, 'sampling_points', 'grid_shape', 'layer_type', '-v7.3');
+    save(output_file_name, 'sampling_points', 'normal_vector', 'grid_shape', 'layer_type', '-v7.3');
 elseif strcmp(layer_type, 'double')
     save(output_file_name, 'sampling_points_inner', 'sampling_points_outer', 'grid_shape', 'layer_type', '-v7.3');
 else

@@ -53,48 +53,17 @@ if strcmp(grid_shape, 'cubical_volume')
 
 elseif contains(grid_shape, 'surface')
 
-    if strcmp(grid_shape, 'spherical_surface')
-              
-        if strcmp(layer_type, 'single') 
-
-            % surface normal
-            normal_vector = sampling_points/norm(sampling_points(:, 1));
-           
-        elseif strcmp(layer_type, 'double')
-      
-            % surface normal
-            normal_vector = sampling_points_outer - sampling_points_inner;
-            normal_vector = normal_vector ./ vecnorm(normal_vector);
-
-            % for file storage and to simplify the syntax
-            sampling_points = (sampling_points_inner + sampling_points_outer)/2; 
-
-        end
-      
-    elseif strcmp(grid_shape, 'cubical_surface')
-                        
+    if strcmp(layer_type, 'double')
+  
         % surface normal
         normal_vector = sampling_points_outer - sampling_points_inner;
         normal_vector = normal_vector ./ vecnorm(normal_vector);
-       
-        % cubical single-layer surface
-        if strcmp(layer_type, 'single') 
 
-            sampling_points = sampling_points_outer;
+        % for file storage and to simplify the syntax
+        sampling_points = (sampling_points_inner + sampling_points_outer)/2; 
 
-            clear sampling_points_inner sampling_points_outer;     
-
-        elseif strcmp(layer_type, 'double')
-        
-            % for file storage and to simplify the syntax
-            sampling_points = (sampling_points_inner + sampling_points_outer)/2; 
-
-        end
-       
-    else 
-        error('Unknown grid_shape.');
     end
-    
+
 else
     error('Unknown grid shape.');  
 
