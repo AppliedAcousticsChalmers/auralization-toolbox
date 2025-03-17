@@ -8,6 +8,8 @@ The data to be auralized need to be in a format that depends on whether the data
 
 In the present folder, we provide example sound field data for a reverberant room with a reverb decay time of around 1 s ("big hall") as well as for a much dryer living-room sized room ("listening lab") in the files. We computed our example data with the scripts from [this repository](https://github.com/AppliedAcousticsChalmers/acoustic-room-responses).
 
+Note that the definition of the sampling grid (for example the file `resources/grid_spherical_surface_L25.mat`) needs to comprise the surface normals (the variable `normal_vector`) in the case of single-layer cubical grids. The surface normals are computed automatically for all other grid types if they are required. 
+
 ## Note on the Coordinate system
 
 As mentioned above, the computation of the auralization matrix requires that the sampling grid is centered around the coordinate origin. The positive `x`-axis corresponds to the direction 'straight ahead'. The coordinate system based on which the simulation data to be auralized were computed may be such that the center point of the auralization sampling grid does not coincide with the coordinate origin. It may be shifted and rotated. This is not a problem so long as the relative positions of the sampling points are the same like in the computation of the auralization matrix and as long as the sampling points are specified in the same order. 

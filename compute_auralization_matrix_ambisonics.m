@@ -82,9 +82,16 @@ elseif contains(grid_shape, 'surface')
 
             % for file storage and to simplify the syntax
             sampling_points = (sampling_points_inner + sampling_points_outer)/2; 
-
+  
+        else % if single-layer surface
+            
+            if strcmp(grid_shape, 'spherical_surface')   
+                % surface normal
+                normal_vector = sampling_points/norm(sampling_points(:, 1));
+            end
+    
         end
-
+        
         % check if overdetermined equation system
         check_equation_system((N+1)^2, size(sampling_points, 2), 'surface');
 

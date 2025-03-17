@@ -44,7 +44,7 @@ data_conversion_function = str2func(precision);
 assert(taps_pw(1) <= taps_c_nm);
 assert(rem(taps_c_nm, 2) == 0); % enforce even length
 
-% --------------------------- create grids --------------------------------
+% ----------------------- complement grid data ----------------------------
 
 if strcmp(grid_shape, 'cubical_volume')
     
@@ -61,13 +61,20 @@ elseif contains(grid_shape, 'surface')
 
         % for file storage and to simplify the syntax
         sampling_points = (sampling_points_inner + sampling_points_outer)/2; 
+    
+    else % if single-layer surface
+        
+        if strcmp(grid_shape, 'spherical_surface')   
+            % surface normal
+            normal_vector = sampling_points/norm(sampling_points(:, 1));
+        end
 
     end
 
 else
     error('Unknown grid shape.');  
 
-end % if cubical or spherical sampling
+end 
 
 
 %if exist('velocity', 'var')
