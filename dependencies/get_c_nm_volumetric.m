@@ -65,7 +65,13 @@ for bin = 2 : length(k)
     %[U, s, V] = svd(Y_nm_cardioid, 'econ', 'vector');
     [U, s, V] = svd(Y_nm, 'econ'); s = diag(s); % for older MATLAB versions
 
-    s = 1 ./ max(s, 10^(-dynamic_range_dB/20) * max(s)); % regularize
+    if f(bin) > 10000 % 10 kHz
+        dynamic_range_dB_tmp = 0;
+    else
+        dynamic_range_dB_tmp = dynamic_range_dB;
+    end
+
+    s = 1 ./ max(s, 10^(-dynamic_range_dB_tmp/20) * max(s)); % regularize
     C_nm(bin, :, :) = conj(U) * (s .* V.');% (V./s.') * U';
     
     %condition_number(bin) = cond(Y_nm);
