@@ -72,7 +72,7 @@ As to our awareness, direct auralization of sound fields sampled along surfaces 
 
 ## Things to Be Aware of
 
-*Note that we have noticed that certain inexpensive headphones can have strong resonances at high frequencies that emphasize spatial aliasing unreasonably much and thereby amplify differences between the auralization and the ground truth. Please be aware of this until we provide further insight into it.*
+*We noticed that it can depend on the headphone model that is used whether or not audible differences between auralization and ground truth occur. This is seems to be related to the fact that the most relevant differences between auralization and ground truth occur at very high frequencies beyond 10 kHz where the transfer functions of headphones can differ significantly. Please be aware of this while we are investigating it.*
 
 See the folder `resources` for information on the coordinate system that we employ. The grid coordinates based on which the auralization matrix is computed have to be such that the sampling points are centered around the coordinate origin. That coordinate origin is then the vantage point of the auralization. The direction of the positive x axis is 'straight ahead'.
 
