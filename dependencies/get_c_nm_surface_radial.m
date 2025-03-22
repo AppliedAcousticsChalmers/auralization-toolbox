@@ -54,8 +54,14 @@ for bin = 2 : length(k) % DC is badly conditioned
     % regularize with soft clipping
     %one_over_s = soft_clip_sv(one_over_s, dynamic_range_dB);
 
+    if f(bin) > 10000
+        dynamic_range_dB_tmp = 0;
+    else
+        dynamic_range_dB_tmp = dynamic_range_dB;
+    end
+
     % regularize with hard clipping
-    one_over_s = 1 ./ max(s, 10^(-dynamic_range_dB/20) * max(s)); % regularize
+    one_over_s = 1 ./ max(s, 10^(-dynamic_range_dB_tmp/20) * max(s)); % regularize
     
     C_nm(bin, :, 1:size(Y_nm_cardioid, 2)) = conj(U) * (one_over_s .* V.');% (V./s.') * U';
 

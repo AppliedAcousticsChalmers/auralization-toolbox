@@ -65,6 +65,8 @@ for bin = 1 : size(tfs, 1)
         % this helps much with cardioid nodes
         svd_reg = 10^(-dynamic_range_dB(1)/20); % 20 dB
         %svd_reg = 0.03; % 30 dB (should be fine, too; to be confirmed)
+    elseif f(bin) > 10000
+        svd_reg = 10^(-10/20); % 10 dB
     else
         svd_reg = 10^(-dynamic_range_dB(2)/20); % 40 dB
     end
