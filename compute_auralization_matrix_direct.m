@@ -15,9 +15,6 @@ fs = 48000; % sampling frequency
 % length of quadrature matrix in time domain
 taps_c_nm = 4096; % 4096, good for grids of head size (longer is great, too)
 
-% dynamic range of the singular values
-dynamic_range_dB = [20 40]; % 20 dB (f = 0-100 Hz), 40 dB (f > 100 Hz)
-
 % -------------------------------------------------------------------------
 
 c         = 343; % m/s, speed of sound
@@ -35,6 +32,13 @@ fprintf('\n');
 fprintf('Loading sampling grid from file ''%s''.\n\n', grid_file);
 
 load(grid_file);
+
+% dynamic range of the singular values
+if strcmp(grid_shape, 'cubical_volume')
+    dynamic_range_dB = [40 40];
+else
+    dynamic_range_dB = [20 40]; % 20 dB (f = 0-100 Hz), 40 dB (f > 100 Hz)
+end
 
 fprintf('Computing direct auralization matrix for ''%s'' grid and head orientation %d deg. \n', grid_shape, round(head_orientation_azimuth_deg));
 fprintf('Dynamic range: %d dB (f = 0-100 Hz), %d dB (f > 100 Hz)\n\n', dynamic_range_dB);
