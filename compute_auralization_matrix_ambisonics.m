@@ -5,7 +5,7 @@ clear;
 addpath('dependencies/');
 
 % sampling grid
-grid_file = 'resources/grid_spherical_surface_L81.mat';
+grid_file = 'resources/grid_spherical_surface_single_L81.mat';
 %grid_file = 'room_data/sound_field_pv_spherical_surface_big_hall_L81.mat'; % comprises both grid and room data (the script disregards the room data)
 %grid_file = 'resources/grid_spherical_surface_double_L81.mat';
 
