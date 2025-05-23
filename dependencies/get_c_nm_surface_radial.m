@@ -1,4 +1,4 @@
-function [C_nm, condition_number] = get_c_nm_surface_radial(taps, r_pressure, r_velocity, azi, col, fs, N, c, dynamic_range_dB, precision)
+function [C_nm, condition_number] = get_c_nm_surface_radial(taps, r_pressure, r_velocity, azi, col, fs, N, c, dynamic_range_permitted_dB, precision)
 % Evaluates the gradient in radial direction.
 % 
 % r_pressure: radius at which the pressure is observed 
@@ -54,14 +54,16 @@ for bin = 2 : length(k) % DC is badly conditioned
     % regularize with soft clipping
     %one_over_s = soft_clip_sv(one_over_s, dynamic_range_dB);
 
-    if f(bin) > 10000
-        dynamic_range_dB_tmp = 0;
-    else
-        dynamic_range_dB_tmp = dynamic_range_dB;
-    end
+    dynamic_range_actual_dB   = 20*log10(s(1)/s(end));
+    dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f(bin), dynamic_range_actual_dB, dynamic_range_permitted_dB);
 
-    % regularize with hard clipping
-    one_over_s = 1 ./ max(s, 10^(-dynamic_range_dB_tmp/20) * max(s)); % regularize
+    % reduce rank by 1 for safety
+    s = s(1:end-1);
+    U = U(:, 1:end-1);
+    V = V(:, 1:end-1);
+
+    % invert the matrix
+    one_over_s = 1 ./ max(s, 10^(-dynamic_range_to_apply_dB/20) * max(s)); % regularize
     
     C_nm(bin, :, 1:size(Y_nm_cardioid, 2)) = conj(U) * (one_over_s .* V.');% (V./s.') * U';
 
@@ -75,3 +77,39 @@ fprintf('\n\n');
 
 end
 
+% -------------------------------------------------------------------------
+function dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f, dynamic_range_actual_dB, dynamic_range_permitted_dB)
+
+head_room_dB = 3; % make sure that some amount of regularization is always being applied
+
+% --- determine how much to regularize ---
+if f > 10000 % 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(3) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(3);
+    end
+
+elseif f > 200 % 200 Hz - 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(2) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(2);
+    end
+
+else % f < 200 Hz
+    
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(1) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(1);
+    end
+
+end
+
+dynamic_range_to_apply_dB = max(0, dynamic_range_to_apply_dB);
+
+end
+% -------------------------------------------------------------------------

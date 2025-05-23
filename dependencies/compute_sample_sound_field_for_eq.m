@@ -56,13 +56,13 @@ end
 % prepare the sound field data for SH decomposition
 if strcmp(grid_shape, 'spherical_surface') || strcmp(grid_shape, 'cubical_surface')
     
-    if exist('velocity', 'var')
-        % compute the signals captured by the virtual cardioid transducers
-        sampled_sound_field = pressure - rho*c .* velocity;
-    else
-        % compute the signals captured by the virtual cardioid transducers
-        [~, sampled_sound_field] = compute_cardioid_from_pressure(sampling_points_inner, sampling_points_outer, pressure_inner, pressure_outer, fs, c);
+    if strcmp(layer_type, 'double')
+        pressure = pressure_outer;
+        velocity = compute_velocity_from_double_pressure(sampling_points_inner, sampling_points_outer, pressure_inner, pressure_outer, fs, rho);
     end
+     
+    % compute the signals captured by the virtual cardioid transducers
+    sampled_sound_field = pressure - rho*c .* velocity;
     
 else % if volumetric
     
@@ -78,27 +78,12 @@ end
 %sampled_sound_field(         1:length(fade_in), :) = sampled_sound_field(1:length(fade_in)         , :) .* repmat(fade_in,  1, size(sampled_sound_field, 2));
 %sampled_sound_field(end-length(fade_out)+1:end, :) = sampled_sound_field(end-length(fade_out)+1:end, :) .* repmat(fade_out, 1, size(sampled_sound_field, 2));
 
-
 % ------ if ambisonic representation of the room data is desired ----------
 if size(c_nm, 1) > 1
     s_nm = get_sh_coefficients_t(sampled_sound_field, c_nm, N);
 else
     s_nm = [];
 end
-
-
-% zero pad
-%s_nm = [s_nm; zeros(2048, size(s_nm, 2))];
-
-% figure;
-% plot(20*log10(abs(sampled_sound_field)))
-% 
-% figure;
-% plot(20*log10(abs(c_nm(:, :, 2))))
-% 
-% 
-% figure;
-% plot(20*log10(abs(s_nm) + 0.0001))
 
 end
 

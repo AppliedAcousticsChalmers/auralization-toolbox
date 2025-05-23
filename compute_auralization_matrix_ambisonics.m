@@ -20,7 +20,7 @@ fs = 48000; % sampling frequency
 
 c         = 343; % m/s, speed of sound
 rho       = 1.2; % kg/m^3, mass density of air
-precision = 'single'; % 'single' (32-bit floating point) or 'double' (64-bit floating point)
+precision = 'double'; % 'single' (32-bit floating point) or 'double' (64-bit floating point)
 
 % -------------------------------------------------------------------------
 
@@ -34,25 +34,42 @@ fprintf('Loading sampling grid from file ''%s''.\n\n', grid_file);
 load(grid_file);
 
 % length of quadrature matrix in time domain
-if strcmp(grid_shape, 'cubical_volume')
-    % we need this with cubical volume grids to avoid the faint echo on
-    % the contralateral side
-    taps_c_nm = 4096;
-else
-    taps_c_nm = 1024; % 1024, good for grids of head size (longer is great, too)
-end
+taps_c_nm = 4096;
+
+% length of fade-in/fade-out of quadrature matrix
+fade_length = 256;
 
 % determine parameters for the sample plane wave to be auralized
 taps_pw = [1024, 1024+taps_c_nm]; % taps_pw(1): effective length of pw simulation, taps_pw(2): length to zero pad to for the auralization preview
 
 % Regularization of the SH matrix, dynamic range of singular values
-if (strcmp(grid_shape, 'spherical_surface') && N > 4)
-    dynamic_range_dB = 70; 
+% (0 < f < 200 Hz, 200 Hz < f < 10 kHz, 10 kHz < f)
+if strcmp(grid_shape, 'cubical_volume')
+
+    dynamic_range_dB = [30 35 10];
+
+elseif strcmp(grid_shape, 'cubical_surface')
+
+    dynamic_range_dB = [30 70 20];
+
+elseif strcmp(grid_shape, 'spherical_surface')
+
+    if N > 4
+        if strcmp(layer_type, 'single')
+            dynamic_range_dB = [40 95 30];
+        else
+            dynamic_range_dB = [40 70 30];
+        end
+    else
+        dynamic_range_dB = [40 40 30];
+    end
+
 else
-    dynamic_range_dB = 40;
+    error('Unknown grid_shape.')
 end
 
-fprintf('Computing ambisonic auralization matrix with %d taps for ''%s'' grid. N = %d. Regularization: %d dB\n\n', taps_c_nm, grid_shape, N, round(dynamic_range_dB));
+fprintf('Computing ambisonic auralization matrix with %d taps for ''%s'' grid with N = %d.\n', taps_c_nm, grid_shape, N);
+fprintf('Regularization: %d | %d | %d dB (f < 200 Hz | f = 200 - 10 kHz) | 10 kHz < f)\n\n', round(dynamic_range_dB));
 
 data_conversion_function = str2func(precision);
 
@@ -148,11 +165,14 @@ end % if cubical or spherical sampling
 % conversion to time domain
 c_nm = ifft(cat(1, C_nm, flipud(conj(C_nm(2:end-1, :, :)))), [], 'symmetric');
 
+% free some memory
+clear C_nm;
+
 % enforce causality (causes a time delay of taps/2)
 c_nm = circshift(c_nm, size(c_nm, 1)/2, 1);
 
-% window the irs, just in case
-win      = hann(256);
+% window the irs
+win      = hann(2*fade_length);
 fade_in  = win(1:end/2);
 fade_out = win(end/2+1:end);
 

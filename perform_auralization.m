@@ -59,12 +59,13 @@ fprintf('with the auralization matrix in file ''%s''.\n\n', auralization_matrix_
 
 fprintf('Preparing the simulation data ... ');
 
+if isfield(simulation_data, 'pressure_outer')
+    simulation_data.velocity = compute_velocity_from_double_pressure(simulation_data.sampling_points_inner, simulation_data.sampling_points_outer, simulation_data.pressure_inner, simulation_data.pressure_outer, simulation_data.fs, rho);
+end
+
 % single layer surface
-if isfield(simulation_data, 'velocity')
-    sampled_sound_field = simulation_data.pressure - rho*c .* simulation_data.velocity;
-% double layer
-elseif isfield(simulation_data, 'pressure_inner')
-    [~, sampled_sound_field] = compute_cardioid_from_pressure(simulation_data.sampling_points_inner, simulation_data.sampling_points_outer, simulation_data.pressure_inner, simulation_data.pressure_outer, simulation_data.fs, c);
+if isfield(simulation_data, 'pressure_outer') || isfield(simulation_data, 'velocity')
+    sampled_sound_field = simulation_data.pressure_outer - rho*c .* simulation_data.velocity;
 % volumetric grid
 else
     sampled_sound_field = simulation_data.pressure;

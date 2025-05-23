@@ -1,4 +1,4 @@
-function [C_nm, condition_number] = get_c_nm_volumetric(taps, sampling_points, fs, N, c, dynamic_range_dB, sphharm_type, precision)
+function [C_nm, condition_number] = get_c_nm_volumetric(taps, sampling_points, fs, N, c, dynamic_range_permitted_dB, sphharm_type, precision)
 % All computations are performed in double precision. The result is stored
 % in C_nm with precision 'precision'.
 % 
@@ -65,13 +65,16 @@ for bin = 2 : length(k)
     %[U, s, V] = svd(Y_nm_cardioid, 'econ', 'vector');
     [U, s, V] = svd(Y_nm, 'econ'); s = diag(s); % for older MATLAB versions
 
-    if f(bin) > 10000 % 10 kHz
-        dynamic_range_dB_tmp = 0;
-    else
-        dynamic_range_dB_tmp = dynamic_range_dB;
-    end
+    dynamic_range_actual_dB   = 20*log10(s(1)/s(end));
+    dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f(bin), dynamic_range_actual_dB, dynamic_range_permitted_dB);
 
-    s = 1 ./ max(s, 10^(-dynamic_range_dB_tmp/20) * max(s)); % regularize
+    % reduce rank by 1 for safety
+    s = s(1:end-1);
+    U = U(:, 1:end-1);
+    V = V(:, 1:end-1);
+
+    % invert the matrix
+    s = 1 ./ max(s, 10^(-dynamic_range_to_apply_dB/20) * max(s)); % regularize
     C_nm(bin, :, :) = conj(U) * (s .* V.');% (V./s.') * U';
     
     %condition_number(bin) = cond(Y_nm);
@@ -83,4 +86,42 @@ C_nm(1, :, :) = real(C_nm(2, :, :));
 
 fprintf('\n\n');
 
+end
+
+% -------------------------------------------------------------------------
+function dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f, dynamic_range_actual_dB, dynamic_range_permitted_dB)
+
+head_room_dB = 3; % make sure that some amount of regularization is always being applied
+
+% --- determine how much to regularize ---
+if f > 10000 % 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(3) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(3);
+    end
+
+elseif f > 200 % 200 Hz - 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(2) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(2);
+    end
+
+else
+    
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(1) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(1);
+    end
+
+end
+
+dynamic_range_to_apply_dB = max(0, dynamic_range_to_apply_dB);
+
+end
+% -------------------------------------------------------------------------
 

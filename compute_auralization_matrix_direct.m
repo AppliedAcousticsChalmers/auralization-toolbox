@@ -7,6 +7,7 @@ addpath('dependencies/');
 % sampling grid
 grid_file = 'resources/grid_spherical_surface_single_L81.mat';
 %grid_file = 'room_data/sound_field_pv_spherical_surface_big_hall_L81.mat'; % comprises both grid and room data (the script disregards the room data)
+%grid_file = 'resources/grid_spherical_surface_double_L81.mat';
 
 head_orientation_azimuth_deg = 0; % azimuth in deg, measured counterclockwise
 
@@ -15,11 +16,14 @@ fs = 48000; % sampling frequency
 % length of quadrature matrix in time domain
 taps_c_nm = 4096; % 4096, good for grids of head size (longer is great, too)
 
+% length of fade-in/fade-out of quadrature matrix
+fade_length = 256;
+
 % -------------------------------------------------------------------------
 
 c         = 343; % m/s, speed of sound
 rho       = 1.2; % kg/m^3, mass density of air
-precision = 'single'; % 'single' (32-bit floating point) or 'double' (64-bit floating point)
+precision = 'double'; % 'single' (32-bit floating point) or 'double' (64-bit floating point)
 
 % -------------------------------------------------------------------------
 
@@ -34,14 +38,19 @@ fprintf('Loading sampling grid from file ''%s''.\n\n', grid_file);
 load(grid_file);
 
 % dynamic range of the singular values
+% (0 < f < 100 Hz, 100 Hz < f < 10 kHz, 10 kHz < f)
 if strcmp(grid_shape, 'cubical_volume')
-    dynamic_range_dB = [40 40];
+    dynamic_range_dB = [50 40 10];
+elseif strcmp(grid_shape, 'cubical_surface')
+    dynamic_range_dB = [20 40 10];
+elseif strcmp(grid_shape, 'spherical_surface')
+    dynamic_range_dB = [20 60 30];
 else
-    dynamic_range_dB = [20 40]; % 20 dB (f = 0-100 Hz), 40 dB (f > 100 Hz)
+    error('Unknown grid_shape.')
 end
 
 fprintf('Computing direct auralization matrix for ''%s'' grid and head orientation %d deg. \n', grid_shape, round(head_orientation_azimuth_deg));
-fprintf('Dynamic range: %d dB (f = 0-100 Hz), %d dB (f > 100 Hz)\n\n', dynamic_range_dB);
+fprintf('Regularization: %d | %d | %d dB (f < 100 Hz | f = 100 - 10 kHz) | 10 kHz < f)\n\n', round(dynamic_range_dB));
 
 data_conversion_function = str2func(precision);
     
@@ -139,6 +148,18 @@ if strcmp(layer_type, 'single') || strcmp(grid_shape, 'cubical_volume')
 else
     [c_l, c_r] = compute_c_direct(head_orientation_azimuth_deg, hrirs_sofa, azi_fliege_deg, ele_fliege_deg, c, taps_c_nm, taps_pw(1), f_transition, fs, dynamic_range_dB, grid_shape, layer_type, normal_vector, rho, sampling_points, sampling_points_inner, sampling_points_outer);
 end
+
+% window the irs
+win      = hann(2*fade_length);
+fade_in  = win(1:end/2);
+fade_out = win(end/2+1:end);
+
+c_l(1:length(fade_in), :, :) = c_l(1:length(fade_in), :, :) .* repmat(fade_in, 1, size(c_l, 2), size(c_l, 3));
+c_l(end-length(fade_out)+1:end, :, :) = c_l(end-length(fade_out)+1:end, :, :) .* repmat(fade_out, 1, size(c_l, 2), size(c_l, 3));
+
+c_r(1:length(fade_in), :, :) = c_r(1:length(fade_in), :, :) .* repmat(fade_in, 1, size(c_r, 2), size(c_r, 3));
+c_r(end-length(fade_out)+1:end, :, :) = c_r(end-length(fade_out)+1:end, :, :) .* repmat(fade_out, 1, size(c_r, 2), size(c_r, 3));
+
 
 % ----------------- get sample sound fields for the evaluation ------------
 if exist('sampling_points_outer', 'var')

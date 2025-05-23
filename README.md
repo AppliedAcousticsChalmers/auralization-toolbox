@@ -10,7 +10,7 @@ The following preprint comprises a comprehensive overview of the capabilities of
 
 > J. Ahrens. Perceptually Transparent Binaural Auralization of Simulated Sound Fields. JAES (submitted) [ [pdf](https://arxiv.org/abs/2412.05015) ]
 
-It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2025a/). 
+It comprises also a **formal evaluation and validation** of different grid parameters and identified parameter sets that provide perceptually transparent auralization, i.e., an auralization that is perceptually indistinguishable from the ground truth. **Binaural audio examples** that were created with the toolbox are available [here](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2025a/) (updated May 2025).
 
 Here is a short video summary (click to watch on YouTube):
 
@@ -48,7 +48,7 @@ See the folder `room_data` to learn what format to bring your own simulation dat
 
 In the folder `resources`, we provide example sound field data for a reverberant room with a reverb decay time of around 1 s ("big hall") in the file `resources/sound_field_pv_spherical_surface_big_hall_L81.mat`. The sampling grid is a spherical surface grid with a radius of 70 mm and 81 nodes on a Fliege grid. The matching precomputed auralization matrix is provided the file `auralization_matrices/auralization_matrix_ambisonics_pv_spherical_surface_L81.mat` and performs 7th-order auralization. We chose it because 7th order is the highest that the plugins that we use in the example Reaper project `binaural_rendering.rpp` support (find more details about the Reaper project [below](#ambi)). 
 
-As we documented in (Ahrens, 2024) referenced above, spherical grids in comination with ambisonic auralization are most favorable. Guaranteed perceptual transparency of the auralization requires in the order of 289 points (of pressure and velocity). You may find that the grid with 81 points allows for very reasonable auralization already. My personal favorite is 225 points. The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` compute anechoic binaural audio examples that will allow for you to verify instantly if the result for your parameter choice is as desired.
+As we documented in (Ahrens, 2024) referenced above, spherical grids in comination with ambisonic auralization are most favorable. Guaranteed perceptual transparency of the auralization requires in the order of 289 points (of pressure and velocity). You may find that the grid with 81 points allows for very reasonable auralization already. The scripts `compute_auralization_matrix_ambisonics.m` and `compute_auralization_matrix_direct.m` compute anechoic binaural audio examples that will allow for you to verify instantly if the result for your parameter choice is as desired.
 
 Note that we provide only very few precomputed auralization matrices in the folder `auralization_matrices` because serious auralization matrices produce file sizes in the order of hundreds of MB and the matched room data even more than that, and we do not want to clog the internet.
 
@@ -72,13 +72,11 @@ As to our awareness, direct auralization of sound fields sampled along surfaces 
 
 ## Things to Be Aware of
 
-*We noticed that it can depend on the headphone model that is used whether or not audible differences between auralization and ground truth occur. This is seems to be related to the fact that the most relevant differences between auralization and ground truth occur at very high frequencies beyond 10 kHz where the transfer functions of headphones can differ significantly. Please be aware of this while we are investigating it.*
+We have revised the signal processing and updated the [binaural audio examples](http://www.ta.chalmers.se/research/audio-technology-group/audio-examples/jaes-2025a/) in May 2025. We chose the regularization parameters such that they squeeze the last bit of performance out of the high-resolution grids. The parameters seem work well for low- and mid-resolution grids, too. In cases of doubt, it may be worth testing increasing the amount of regularization for low-resolution grids by reducing the permitted dynamic range of the singluar values. For example, reduce the second figure (the `95`) in the vector `[40 95 30]` in l. 59 in the file `compute_auralization_matrix_ambisonics.m` to, say, `70` or so.
 
 See the folder `resources` for information on the coordinate system that we employ. The grid coordinates based on which the auralization matrix is computed have to be such that the sampling points are centered around the coordinate origin. That coordinate origin is then the vantage point of the auralization. The direction of the positive x axis is 'straight ahead'.
 
 It was not straightforward to find parameters that allow for perceptually transparent auralization. In particular, it may happen that the auralization is impaired if you use sampling grids of size that is different from our preferred size of 140 mm diameter/edge length. It may require fiddling with regularization and more to get it sorted out. Make sure that you get in touch with us at jens.ahrens@chalmers.se if things behave differently than you were expecting. 
-
-We found it particularly tricky to get satisfactory results from cubical volumetric grids when using ambisonic auralization. Consider playing around with the values of the variable `taps_c_nm` in ``compute_auralization_matrix_ambisonics.m`` in these cases.
 
 We have not studied the requirements for the distance between the layers of a double pressure-layer grid (`_pp_` type data) in detail. In theory, the distance should be as small as possible but larger than 0. Our preliminary results suggest that distances in the order of 5 mm or smaller are uncritical. The accuracy at high frequencies declines gradually for distances larger than that so that is it not clear what exactly a useful threshold can be. As always, use the audio examples that will be computed for each tested case to judge for yourself.
 

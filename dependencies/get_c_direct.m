@@ -1,9 +1,9 @@
-function [c_l_irs, c_r_irs, condition_number] = get_c_direct(irs_calibration, hrirs_calibration_l, hrirs_calibration_r, fs, f_transition, dynamic_range_dB)
+function [c_l_irs, c_r_irs, condition_number] = get_c_direct(irs_calibration, hrirs_calibration_l, hrirs_calibration_r, fs, f_transition, dynamic_range_permitted_dB)
 %
 % irs_calibration: input signal
 % hrirs_calibration_l, hrirs_calibration_r: desired output signal
 
-%f_transition = 40000;
+fprintf('Preparing computation of the auralization matrices ... ');
 
 f = linspace(0, fs/2, size(irs_calibration, 1)/2+1).';
 
@@ -51,31 +51,36 @@ hrtfs_l = hrtfs_l(1:end/2+1, :);
 hrtfs_r = fft(hrirs_calibration_r, [], 1);
 hrtfs_r = hrtfs_r(1:end/2+1, :);
 
+fprintf('done.\n\n');
+
 condition_number = zeros(size(tfs, 1), 1);
 
 C_l = zeros(size(tfs, 1), size(tfs, 2));
 C_r = zeros(size(tfs, 1), size(tfs, 2));
 
 % -------------------------------------------------------------------------
+display_progress(sprintf('Computing the auralization matrices (using eMagLS2 above %d Hz):', round(f_transition)));
 
 % loop over all bins
 for bin = 1 : size(tfs, 1)
 
-    if f(bin) < 100 
-        % this helps much with cardioid nodes
-        svd_reg = 10^(-dynamic_range_dB(1)/20); % 20 dB
-        %svd_reg = 0.03; % 30 dB (should be fine, too; to be confirmed)
-    elseif f(bin) > 10000
-        svd_reg = 10^(-10/20); % 10 dB
-    else
-        svd_reg = 10^(-dynamic_range_dB(2)/20); % 40 dB
-    end
+    display_progress(bin/size(tfs, 1));
 
     pw_grid = squeeze(tfs(bin, :, :));
 
     %[U, s, V] = svd(pw_grid.', 'econ', 'vector');
     [U, s, V] = svd(pw_grid.', 'econ'); s = diag(s); % for older MATLAB versions
-    s = 1 ./ max(s, svd_reg * max(s)); % regularize
+
+    dynamic_range_actual_dB   = 20*log10(s(1)/s(end));
+    dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f(bin), dynamic_range_actual_dB, dynamic_range_permitted_dB);
+
+    % reduce rank by 1 for safety
+    s = s(1:end-1);
+    U = U(:, 1:end-1);
+    V = V(:, 1:end-1);
+
+    % invert the matrix
+    s = 1 ./ max(s, 10^(-dynamic_range_to_apply_dB/20) * max(s));
     Y_reg_inv = conj(U) * (s .* V.');
 
     if f(bin) < f_transition % least-squares below 
@@ -126,4 +131,43 @@ c_l_irs(end-length(fade_out)+1:end, :, :) = c_l_irs(end-length(fade_out)+1:end, 
 c_r_irs(1:length(fade_in),          :, :) = c_r_irs(1:length(fade_in),          :, :) .* repmat(fade_in,  1, size(c_r_irs, 2), size(c_r_irs, 3));
 c_r_irs(end-length(fade_out)+1:end, :, :) = c_r_irs(end-length(fade_out)+1:end, :, :) .* repmat(fade_out, 1, size(c_r_irs, 2), size(c_r_irs, 3));
 
+fprintf('\n\n');
+
 end
+
+% -------------------------------------------------------------------------
+function dynamic_range_to_apply_dB = get_dynamic_range_to_apply_dB(f, dynamic_range_actual_dB, dynamic_range_permitted_dB)
+
+head_room_dB = 3; % make sure that some amount of regularization is always being applied
+
+% --- determine how much to regularize ---
+if f > 10000 % 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(3) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(3);
+    end
+
+elseif f > 100 % 100 Hz - 10 kHz
+
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(2) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(2);
+    end
+
+else
+    
+    if dynamic_range_actual_dB < dynamic_range_permitted_dB(1) + head_room_dB
+        dynamic_range_to_apply_dB = dynamic_range_actual_dB - head_room_dB;
+    else
+        dynamic_range_to_apply_dB = dynamic_range_permitted_dB(1);
+    end
+
+end
+
+dynamic_range_to_apply_dB = max(0, dynamic_range_to_apply_dB);
+
+end
+% -------------------------------------------------------------------------
