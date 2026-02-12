@@ -80,7 +80,7 @@ It was not straightforward to find parameters that allow for perceptually transp
 
 We have not studied the requirements for the distance between the layers of a double pressure-layer grid (`_pp_` type data) in detail. In theory, the distance should be as small as possible but larger than 0. Our preliminary results suggest that distances in the order of 5 mm or smaller are uncritical. The accuracy at high frequencies declines gradually for distances larger than that so that is it not clear what exactly a useful threshold can be. As always, use the audio examples that will be computed for each tested case to judge for yourself.
 
-It will not be straightforward to incorporate HRTFs other than those that we are using. But it is possible.
+It will not be straightforward to incorporate HRTFs other than those that we are using. But it is possible. The difficulty is the following: The ambisonic methods require the HRTF data to be converted to a spherical harmonic representation. The HRTF set that is used currently comprises measurements from all directions, which makes the transform to the spherical harmonic domain straightforward. Many HRTF set lack measurements from certain directions like from below. Transforming such data to the spherical harmonic domain requires extra steps that are not implemented in the Auralization Toolbox at this stage.
 
 ## References
 
